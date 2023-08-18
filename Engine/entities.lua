@@ -131,10 +131,19 @@ hooks.Add("PostEngineLoad", function()
 	engine.entities.Register("Engine/entities/base", "base")
 end)
 
+hooks.Add("OnGameUpdate", function(deltaTime) 
+	for k, ent in ipairs(engine.world.entities) do
+		if (ent.OnUpdate ~= nil and isfunction(ent.OnUpdate)) then
+			ent:OnUpdate(deltaTime)
+		end
+	end
+end)
+
 hooks.Add("OnGameDraw", function() 
 	for k, ent in ipairs(engine.world.entities) do
 		if (ent.OnDraw ~= nil and isfunction(ent.OnDraw)) then
 			ent:OnDraw()
+			love.graphics.setColor(1,1,1) -- Clear render color if changed.
 		end
 	end
 end)
