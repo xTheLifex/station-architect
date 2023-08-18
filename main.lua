@@ -33,6 +33,8 @@ function love.load()
 	engine.Log("[Core] " .. "Loaded assets module.")
 	require("Engine/rendering")
 	engine.Log("[Core] " .. "Loaded rendering module.")
+	require("Engine/entities")
+	engine.Log("[Core] " .. "Loaded entities module.")
 
 	
 	if (intro) then
