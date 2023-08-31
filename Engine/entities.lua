@@ -156,7 +156,14 @@ engine.entities.Register = function(path, index)
 	
 	ent.DrawSelf = ent.DrawSelf or function(ent) 
 		if (ent.sprite ~= nil) then
-			love.graphics.draw(ent.sprite, ent.x, ent.y)
+			if (type(ent.sprite) == "string") then
+				local asset = engine.assets.graphics.Simple[ent.sprite]["img"]
+				if (asset) then
+					love.graphics.draw(asset, ent.x, ent.y)
+				end
+			else
+				love.graphics.draw(ent.sprite, ent.x, ent.y)
+			end
 		end
 	end
 	
