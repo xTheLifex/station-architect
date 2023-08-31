@@ -96,7 +96,8 @@ hooks.Add("OnGameDraw", function ()
 		end
 	end
 
-	for i=0,4 do
+	-- Draw entities with their layer.
+	for i=0,3 do -- 3 layers for now.
 		for k, ent in ipairs(engine.world.entities) do
 			local layer = ent.layer or 1
 			
