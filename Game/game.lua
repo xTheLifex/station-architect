@@ -26,10 +26,12 @@ hooks.Add("OnGameLoad", function()
 		end
 	end
 
-	engine.entities.Create("mob", {
-		x = 32,
-		y = 32
-	})
+	for i=0,4000 do
+		engine.entities.Create("mob", {
+			x = 8 * i ,
+			y = 8 * i
+		})
+	end
 	game.Log("Asteroids Init!")
 end)
 
