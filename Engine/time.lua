@@ -12,6 +12,8 @@ function UnixTime()
 	return os.time(os.date("!*t"))
 end
 
+DateTime = UnixTime
+
 function DeltaTime()
     return engine.time.deltaTime
 end
