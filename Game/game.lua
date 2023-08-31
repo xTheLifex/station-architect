@@ -13,20 +13,23 @@ hooks.Add("OnGameLoad", function()
 	
 	game.asteroids = {}
 	local tilesize=32
-	for x=0,48 do
-		for y=0,32 do
+	for x=0,engine.world.size[1] do
+		for y=0,engine.world.size[2] do
 			local sprite
 			if (love.math.random(0,1) == 1) then
 				sprite = engine.assets.graphics.Simple["plating"]["img"]
 			else
 				sprite = sprites[love.math.random(1, #sprites)]
 			end
-			
-			local ex = x * tilesize
-			local ey = y * tilesize
-			engine.entities.Create("base", {x=ex, y=ey, sprite=sprite})
+			--engine.entities.Create("tile", {x=ex, y=ey, sprite=sprite})
+			engine.world.SetTile(x,y, sprite)
 		end
 	end
+
+	engine.entities.Create("mob", {
+		x = 32,
+		y = 32
+	})
 	game.Log("Asteroids Init!")
 end)
 

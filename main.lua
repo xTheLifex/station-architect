@@ -31,11 +31,12 @@ function love.load()
 	
 	require("Engine/assets")
 	engine.Log("[Core] " .. "Loaded assets module.")
-	require("Engine/rendering")
-	engine.Log("[Core] " .. "Loaded rendering module.")
 	require("Engine/entities")
 	engine.Log("[Core] " .. "Loaded entities module.")
-
+	require("Engine/world")
+	engine.Log("[Core] " .. "Loaded world module.")
+	require("Engine/rendering")
+	engine.Log("[Core] " .. "Loaded rendering module.")
 	
 	if (intro) then
 		require("Engine/Intro/intro")
@@ -48,7 +49,7 @@ function love.load()
 
 	engine.Log("[Core] " .. "Finished loading engine modules.")
 	
-	love.math.setRandomSeed( CurTime() )
+	--love.math.setRandomSeed( CurTime() )
 	math.randomseed( CurTime() )
 	
 	engine.Log("[Core] " .. "Applied seed to random generator: " .. os.time(os.date("!*t")))

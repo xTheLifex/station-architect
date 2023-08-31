@@ -298,6 +298,17 @@ function utils.MousePos()
 	}
 end
 
+
+function utils.CamToWorld(x,y)
+	local rx, ry = engine.rendering.camera:worldCoords(x,y)
+	return{
+		[1] = rx,
+		[2] = ry,
+		["x"] = rx,
+		["y"] = ry
+	}
+end
+
 function utils.MouseX()
 	local pos = utils.MousePos()
 	return pos.x
@@ -311,3 +322,4 @@ end
 MousePos = utils.MousePos
 MouseX = utils.MouseX
 MouseY = utils.MouseY
+CamToWorld = utils.CamToWorld

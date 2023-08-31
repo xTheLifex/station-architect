@@ -11,6 +11,16 @@ engine.rendering.GetZoom = function()
 	return engine.rendering.camera.scale or 1
 end
 
+engine.rendering.CameraPos = function ()
+	local x,y = engine.rendering.camera:position()
+	return {
+		[1] = x,
+		[2] = y,
+		["x"] = x,
+		["y"] = y
+	}
+end
+
 engine.rendering.GetCameraSpeed = function()
 	local zoom = engine.rendering.GetZoom()
 	local speed = BASE_SPEED / zoom
@@ -66,11 +76,38 @@ hooks.Add("OnGameUpdate", function(deltaTime)
 end)
 
 
+hooks.Add("OnGameDraw", function ()
+	-- Draw game world.
+	local min = utils.CamToWorld(0,0)
+	min.x = min.x-32
+	min.y = min.y-32 
+	local max = utils.CamToWorld(ScreenX(), ScreenY())
+
+	local gmin = engine.world.grid.FromWorldPos(min.x, min.y)
+	local gmax = engine.world.grid.FromWorldPos(max.x, max.y)
 
 
--- -------------------------------------------------------------------------- --
---                                  Entities                                  --
--- -------------------------------------------------------------------------- --
+	for x=gmin.x+1, gmax.x do 
+		for y=gmin.y+1, gmax.y do
+			local tile = engine.world.tiles[x] and engine.world.tiles[x][y] or nil
+			if (IsValid(tile)) then
+				love.graphics.draw(tile, x * engine.world.grid.tilesize, y * engine.world.grid.tilesize)
+			end
+		end
+	end
+
+	for i=0,4 do
+		for k, ent in ipairs(engine.world.entities) do
+			local layer = ent.layer or 1
+			
+			if (ent.OnDraw ~= nil and isfunction(ent.OnDraw) and layer == i) then
+				ent:OnDraw()
+				love.graphics.setColor(1,1,1) -- Clear render color if changed.
+			end
+		end
+	end
+end)
+
 
 hooks.Add("OnInterfaceDraw", function()
 	if (engine.GetCVar("debug_rendering", false) == false) then return end
@@ -78,6 +115,3 @@ hooks.Add("OnInterfaceDraw", function()
 	local speed = engine.rendering.GetCameraSpeed()
 	love.graphics.print("Camera Zoom :" .. zoom .. ", Camera Speed: " .. speed, 32, 512, 0, 1, 1)
 end)
-
--- TODO: Entity drawing.
-

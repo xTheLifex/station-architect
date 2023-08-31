@@ -15,15 +15,39 @@ engine.entities.Create = function(name, data)
 		engine.Log("[Entities] attempt to create unknown entity type '" .. name .. "'.")
 		return
 	end
+
+	local superList = {}
+	local function deepCopyWithInheritance(template)
+        local copy = {}
+        local baseName = template.base
+
+        -- Recursively copy base entity if there is one
+        if baseName and engine.entities.registry[baseName] then
+            local baseCopy = deepCopyWithInheritance(engine.entities.registry[baseName])
+            for k, v in pairs(baseCopy) do
+                copy[k] = v
+            end
+			copy.super = baseCopy
+        end
+
+        -- Copy the current entity's properties
+        for k, v in pairs(template) do
+            copy[k] = v
+        end
+
+        return copy
+    end
 	
 	local template = engine.entities.registry[name]
-
 	
 	local x = isnumber(data["x"]) and data["x"] or 0
 	local y = isnumber(data["y"]) and data["y"] or 0
+	local tilepos = engine.world.grid.FromWorldPos(x,y)
+	local tilex = tilepos.x
+	local tiley = tilepos.y
 	local targetname = data["targetname"] or data["name"] or "*"
 	local id = #engine.entities.registry + 1
-	local ent = table.deepcopy(template)
+	local ent = deepCopyWithInheritance(template)
 	
 	for k,v in pairs(data) do
 		ent[k] = v
@@ -31,6 +55,10 @@ engine.entities.Create = function(name, data)
 	
 	ent.x = x or 0
 	ent.y = y or 0
+	ent.tilex = tilex
+	ent.tiley = tiley
+	ent.gridx = tilex
+	ent.gridy = tiley
 	ent.targetname = targetname or "*"
 	engine.entities.lastID = engine.entities.lastID + 1
 	ent.id = engine.entities.lastID
@@ -42,6 +70,16 @@ engine.entities.Create = function(name, data)
 	end
 	
 	return ent
+end
+
+engine.entities.GetOnGrid = function(gx, gy)
+	local results = {}
+	for k, ent in ipairs(engine.world.entities) do
+		if (ent.tilex == gx and ent.tiley == gy) then
+			table.insert(results, ent)
+		end
+	end
+	return results
 end
 
 engine.entities.GetByTargetname = function(targetname) 
@@ -113,6 +151,7 @@ engine.entities.Register = function(path, index)
 	local index = index or ent.index
 	if (index == nil) then
 		engine.Log("[Entities] Attempt to register un-indexed entity: " .. path)
+		return
 	end
 	
 	ent.DrawSelf = ent.DrawSelf or function(ent) 
@@ -121,29 +160,28 @@ engine.entities.Register = function(path, index)
 		end
 	end
 	
-	engine.Log("[Entities] Registering entity" .. index .. ".") 
+	engine.Log("[Entities] Registering entity " .. index .. ".") 
 	engine.entities.registry[index] = ent
 end
-
-hooks.Add("PostEngineLoad", function() 
-	engine.Log("[Entities] Module init. Loading entity definitons...")
-	
-	engine.entities.Register("Engine/entities/base", "base")
-end)
 
 hooks.Add("OnGameUpdate", function(deltaTime) 
 	for k, ent in ipairs(engine.world.entities) do
 		if (ent.OnUpdate ~= nil and isfunction(ent.OnUpdate)) then
 			ent:OnUpdate(deltaTime)
+			-- Update tile position values
+			local tilepos = engine.world.grid.FromWorldPos(ent.x, ent.y)
+			ent.tilex = tilepos.x
+			ent.tiley = tilepos.y
+			ent.gridx = tilepos.x
+			ent.gridy = tilepos.y
 		end
 	end
 end)
 
-hooks.Add("OnGameDraw", function() 
-	for k, ent in ipairs(engine.world.entities) do
-		if (ent.OnDraw ~= nil and isfunction(ent.OnDraw)) then
-			ent:OnDraw()
-			love.graphics.setColor(1,1,1) -- Clear render color if changed.
-		end
-	end
+hooks.Add("PostEngineLoad", function() 
+	engine.Log("[Entities] Module init. Loading entity definitons...")
+	
+	engine.entities.Register("Engine/entities/base", "base")
+	engine.entities.Register("Engine/entities/wall", "wall")
+	engine.entities.Register("Engine/entities/mob", "mob")
 end)
