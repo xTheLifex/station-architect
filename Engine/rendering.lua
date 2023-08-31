@@ -33,11 +33,11 @@ hooks.Add("OnSetupCVars", function()
     engine.AddCVar("debug_rendering", false, "Enable/Disable debugging information about Rendering.")
 end)
 
-hooks.Add("PreGameDraw", function()
+hooks.Add("OnCameraAttach", function()
 	engine.rendering.camera:attach()
 end)
 
-hooks.Add("PostGameDraw", function()
+hooks.Add("OnCameraDetach", function()
 	engine.rendering.camera:detach()
 end)
 
@@ -79,8 +79,8 @@ end)
 hooks.Add("OnGameDraw", function ()
 	-- Draw game world.
 	local min = utils.CamToWorld(0,0)
-	min.x = min.x-32
-	min.y = min.y-32 
+	min.x = min.x - engine.world.grid.tilesize
+	min.y = min.y - engine.world.grid.tilesize
 	local max = utils.CamToWorld(ScreenX(), ScreenY())
 
 	local gmin = engine.world.grid.FromWorldPos(min.x, min.y)
@@ -100,10 +100,11 @@ hooks.Add("OnGameDraw", function ()
 	for i=0,3 do -- 3 layers for now.
 		for k, ent in ipairs(engine.world.entities) do
 			local layer = ent.layer or 1
-			
-			if (ent.OnDraw ~= nil and isfunction(ent.OnDraw) and layer == i) then
-				ent:OnDraw()
-				love.graphics.setColor(1,1,1) -- Clear render color if changed.
+			if (ent.x > min.x and ent.x < max.x and ent.y > min.y and ent.y < max.y) then
+				if (ent.OnDraw ~= nil and isfunction(ent.OnDraw) and layer == i) then
+					ent:OnDraw()
+					love.graphics.setColor(1,1,1) -- Clear render color if changed.
+				end
 			end
 		end
 	end

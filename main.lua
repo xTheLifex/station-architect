@@ -132,9 +132,11 @@ end
 function love.draw()
 	hooks.Fire("PreDraw")
 	
+	hooks.Fire("OnCameraAttach")
 	hooks.Fire("PreGameDraw")
 	hooks.Fire("OnGameDraw")
 	hooks.Fire("PostGameDraw")
+	hooks.Fire("OnCameraDetach")
 	
 	hooks.Fire("PreInterfaceDraw")
 	hooks.Fire("OnInterfaceDraw")
