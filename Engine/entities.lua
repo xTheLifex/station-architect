@@ -172,9 +172,19 @@ engine.entities.Register = function(path, index)
 end
 
 hooks.Add("OnGameUpdate", function(deltaTime) 
+	local max = {
+		x = engine.world.size[1] * engine.world.grid.tilesize,
+		y = engine.world.size[2] * engine.world.grid.tilesize
+	}
+	local min = {x=0, y=0}
 	for k, ent in ipairs(engine.world.entities) do
 		if (ent.OnUpdate ~= nil and isfunction(ent.OnUpdate)) then
 			ent:OnUpdate(deltaTime)
+			-- Validate position
+			if (ent.x > max.x) then ent.x = max.x end
+			if (ent.x < min.x) then ent.x = min.x end
+			if (ent.y > max.y) then ent.y = max.y end
+			if (ent.y < min.y) then ent.y = min.y end
 			-- Update tile position values
 			local tilepos = engine.world.grid.FromWorldPos(ent.x, ent.y)
 			ent.tilex = tilepos.x
