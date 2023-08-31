@@ -2,6 +2,7 @@ local ent = {}
 ent.base = "base"
 ent.nextDirChange = 0
 ent.dir = { x = 0.0, y = 0.0 }
+ent.sprite = "meow"
 ent.speed = 12
 function ent:OnUpdate(deltaTime)
     self.x = self.x + (self.speed * deltaTime * self.dir.x)
