@@ -5,6 +5,10 @@ engine.entities.lastID = 0
 engine.world = engine.world or {}
 engine.world.entities = engine.world.entities or {}
 
+-- -------------------------------------------------------------------------- --
+--                          Entity Creation Function                          --
+-- -------------------------------------------------------------------------- --
+
 engine.entities.Create = function(name, data) 
 	if (not IsValid(name)) then
 		engine.Log("[Entities] tried to create empty entity. Rejecting.")
@@ -83,8 +87,14 @@ engine.entities.Create = function(name, data)
 	return ent
 end
 
+-- -------------------------------------------------------------------------- --
+--                              Entity Functions                              --
+-- -------------------------------------------------------------------------- --
+
+-- ----------------------------- Distance Checks ---------------------------- --
+
 engine.entities.TileDistanceFromPoint = function(ent, gx, gy)
-	if (x == nil or y == nil) then return nil end
+	if (gx == nil or gy == nil) then return nil end
 	if (ent == nil) then return nil end
 
 	assert(ent.tilex ~= nil, "Provided entity table does not contain position")
@@ -147,6 +157,8 @@ engine.entities.TileDistance = function(ent, a, b)
 	end
 end
 
+-- -------------------------------- Position -------------------------------- --
+
 engine.entities.GetOnGrid = function(gx, gy)
 	local results = {}
 	for k, ent in ipairs(engine.world.entities) do
@@ -183,6 +195,8 @@ engine.entities.GetOnRadius = function(x,y, radius)
 	return results
 end
 
+-- --------------------------------- Filters -------------------------------- --
+
 engine.entities.GetByType = function(type)
 	local results = {}
 	for k, ent in ipairs(engine.world.entities) do
@@ -216,6 +230,10 @@ engine.entities.GetByID = function(id)
 	end
 	return nil
 end
+
+-- -------------------------------------------------------------------------- --
+--                               Entity Deletion                              --
+-- -------------------------------------------------------------------------- --
 
 engine.entities.DeleteTarget = function(targetname)
 	local ents = engine.entities.GetByTargetname(targetname)
@@ -255,6 +273,10 @@ engine.entities.Delete = function(id)
 	return true
 end
 
+-- -------------------------------------------------------------------------- --
+--                             Entity Registration                            --
+-- -------------------------------------------------------------------------- --
+
 engine.entities.Register = function(path, index) 
 	local ent = engine.Include(path)
 	
@@ -286,10 +308,14 @@ engine.entities.Register = function(path, index)
 	engine.entities.registry[index] = ent
 end
 
+-- -------------------------------------------------------------------------- --
+--                               Entity Updates                               --
+-- -------------------------------------------------------------------------- --
+
 hooks.Add("OnGameUpdate", function(deltaTime) 
 	local max = {
-		x = engine.world.size[1] * engine.world.grid.tilesize,
-		y = engine.world.size[2] * engine.world.grid.tilesize
+		x = (engine.world.size[1] * engine.world.grid.tilesize) + 32,
+		y = (engine.world.size[2] * engine.world.grid.tilesize) + 32
 	}
 	local min = {x=0, y=0}
 	hooks.Fire("PreEntitiesUpdate")
@@ -312,6 +338,10 @@ hooks.Add("OnGameUpdate", function(deltaTime)
 	hooks.Fire("PostEntitiesUpdate")
 end)
 
+-- -------------------------------------------------------------------------- --
+--                         Entity Registration Loading                        --
+-- -------------------------------------------------------------------------- --
+
 hooks.Add("PostEngineLoad", function() 
 	engine.Log("[Entities] Module init. Loading entity definitons...")
 	
@@ -319,6 +349,10 @@ hooks.Add("PostEngineLoad", function()
 	engine.entities.Register("Engine/entities/wall", "wall")
 	engine.entities.Register("Engine/entities/mob", "mob")
 end)
+
+-- -------------------------------------------------------------------------- --
+--                                  Debugging                                 --
+-- -------------------------------------------------------------------------- --
 
 engine.AddCVar("debug_entities", false, "Enable the debugging of entity information")
 
