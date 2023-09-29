@@ -1,3 +1,4 @@
+---@diagnostic disable: unbalanced-assignments, undefined-field, redundant-parameter, lowercase-global
 --[[
     LICENSED UNDER GPLV3
         Author: Neer

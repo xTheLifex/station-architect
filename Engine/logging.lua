@@ -2,6 +2,7 @@ engine = engine or {}
 file = file or {}
 
 
+---@diagnostic disable-next-line: duplicate-set-field
 function file.exists(path)
     local f = io.open(path, "r")
     if (f~=nil) then

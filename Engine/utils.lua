@@ -1,3 +1,4 @@
+---@diagnostic disable: lowercase-global
 engine = engine or {}
 utils = utils or {}
 
