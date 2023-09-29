@@ -26,13 +26,18 @@ hooks.Add("OnGameLoad", function()
 		end
 	end
 
-	for i=0,4000 do
+	for i=0,2000 do
 		engine.entities.Create("mob", {
 			x = 8 * i ,
 			y = 8 * i
 		})
 	end
-	game.Log("Asteroids Init!")
+
+	local mobs = engine.entities.GetByType("mob")
+
+	meow = meow or {}
+	meow.master = mobs[love.math.random(1,#mobs)]
+	
 end)
 
 hooks.Add("OnGameDraw", function ()	

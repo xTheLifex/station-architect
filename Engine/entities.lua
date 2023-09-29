@@ -38,6 +38,7 @@ engine.entities.Create = function(name, data)
         return copy
     end
 	
+	-- TODO: Move alot of those verifications and hardcodes to the entity registration, keep out of the entity creation
 	local template = engine.entities.registry[name]
 	
 	local x = isnumber(data["x"]) and data["x"] or 0
@@ -48,7 +49,12 @@ engine.entities.Create = function(name, data)
 	local targetname = data["targetname"] or data["name"] or "*"
 	local id = #engine.entities.registry + 1
 	local ent = deepCopyWithInheritance(template)
-	
+	local center = data["center"] or {16, 16, ["x"] = 16, ["y"] = 16}
+	center[1] = center[1] or 16
+	center[2] = center[2] or 16
+	center.x = center.x or center[1]
+	center.y = center.y or center[2]
+
 	for k,v in pairs(data) do
 		ent[k] = v
 	end	
@@ -59,17 +65,86 @@ engine.entities.Create = function(name, data)
 	ent.tiley = tiley
 	ent.gridx = tilex
 	ent.gridy = tiley
+	ent.center = center
 	ent.targetname = targetname or "*"
 	engine.entities.lastID = engine.entities.lastID + 1
 	ent.id = engine.entities.lastID
-	
+	ent.type = name
+
 	table.insert(engine.world.entities, ent)
 	
 	if (ent.OnCreate ~= nil and isfunction(ent.OnCreate)) then
 		ent:OnCreate()
 	end
-	
+
+	ent.id = engine.entities.lastID
+	ent.type = name
+	hooks.Fire("OnEntityCreated", ent)
 	return ent
+end
+
+engine.entities.TileDistanceFromPoint = function(ent, gx, gy)
+	if (x == nil or y == nil) then return nil end
+	if (ent == nil) then return nil end
+
+	assert(ent.tilex ~= nil, "Provided entity table does not contain position")
+	assert(ent.tiley ~= nil, "Provided entity table does not contain position")
+
+	return utils.Distance(ent.tilex, ent.tiley, gx, gy)
+end
+
+engine.entities.TileDistanceFromEntity = function(ent, other)
+	if (ent == nil) then return nil end
+	if (other == nil) then return nil end
+
+	assert(ent.tilex ~= nil, "Provided entity table does not contain position")
+	assert(ent.tiley ~= nil, "Provided entity table does not contain position")
+	assert(other.tilex ~= nil, "Provided entity table does not contain position")
+	assert(other.tiley ~= nil, "Provided entity table does not contain position")
+
+	return utils.Distance(ent.tilex, ent.tiley, other.tilex, other.tiley)
+end
+
+
+
+engine.entities.DistanceFromPoint = function(ent, x, y)
+	if (x == nil or y == nil) then return nil end
+	if (ent == nil) then return nil end
+
+	assert(ent.x ~= nil, "Provided entity table does not contain position")
+	assert(ent.y ~= nil, "Provided entity table does not contain position")
+
+	return utils.Distance(ent.x, ent.y, x, y)
+end
+
+engine.entities.DistanceFromEntity = function(ent, other)
+	if (ent == nil) then return nil end
+	if (other == nil) then return nil end
+
+	assert(ent.x ~= nil, "Provided entity table does not contain position")
+	assert(ent.y ~= nil, "Provided entity table does not contain position")
+	assert(other.x ~= nil, "Provided entity table does not contain position")
+	assert(other.y ~= nil, "Provided entity table does not contain position")
+
+	return utils.Distance(ent.x, ent.y, other.x, other.y)
+end
+
+engine.entities.Distance = function(ent, a, b)
+	-- 'a' may be a entity.
+	if (type(a) == "table") then
+		return engine.entities.DistanceFromEntity(ent, a);
+	else
+		return engine.entities.DistanceFromPoint(ent, a, b)
+	end
+end
+
+engine.entities.TileDistance = function(ent, a, b)
+	-- 'a' may be a entity.
+	if (type(a) == "table") then
+		return engine.entities.TileDistanceFromEntity(ent, a);
+	else
+		return engine.entities.TileDistanceFromPoint(ent, a, b)
+	end
 end
 
 engine.entities.GetOnGrid = function(gx, gy)
@@ -80,6 +155,46 @@ engine.entities.GetOnGrid = function(gx, gy)
 		end
 	end
 	return results
+end
+
+engine.entities.GetOnGridRadius = function(gx, gy, radius)
+	local results = {}
+	for k, ent in ipairs(engine.world.entities) do
+		local dist = utils.Distance(ent.tilex, ent.tiley, gx, gy)
+
+		if (dist < radius) then
+			table.insert(results, ent)
+		end
+	end
+
+	return results
+end
+
+engine.entities.GetOnRadius = function(x,y, radius)
+	local results = {}
+	for k, ent in ipairs(engine.world.entities) do
+		local dist = utils.Distance(ent.x, ent.y, x,y)
+
+		if (dist < radius) then
+			table.insert(results, ent)
+		end
+	end
+
+	return results
+end
+
+engine.entities.GetByType = function(type)
+	local results = {}
+	for k, ent in ipairs(engine.world.entities) do
+		if (ent.type == type) then
+			table.insert(results, ent)
+		end
+	end
+	return results
+end
+
+engine.entities.GetAll = function()
+	return engine.world.entities
 end
 
 engine.entities.GetByTargetname = function(targetname) 
@@ -159,10 +274,10 @@ engine.entities.Register = function(path, index)
 			if (type(ent.sprite) == "string") then
 				local asset = engine.assets.graphics.Simple[ent.sprite]["img"]
 				if (asset) then
-					love.graphics.draw(asset, ent.x, ent.y)
+					love.graphics.draw(asset, ent.x - (ent.center[1] or 0), ent.y - (ent.center[2] or 0))
 				end
 			else
-				love.graphics.draw(ent.sprite, ent.x, ent.y)
+				love.graphics.draw(ent.sprite, ent.x - (ent.center[1] or 0), ent.y - (ent.center[2] or 0))
 			end
 		end
 	end
@@ -177,6 +292,7 @@ hooks.Add("OnGameUpdate", function(deltaTime)
 		y = engine.world.size[2] * engine.world.grid.tilesize
 	}
 	local min = {x=0, y=0}
+	hooks.Fire("PreEntitiesUpdate")
 	for k, ent in ipairs(engine.world.entities) do
 		if (ent.OnUpdate ~= nil and isfunction(ent.OnUpdate)) then
 			ent:OnUpdate(deltaTime)
@@ -193,6 +309,7 @@ hooks.Add("OnGameUpdate", function(deltaTime)
 			ent.gridy = tilepos.y
 		end
 	end
+	hooks.Fire("PostEntitiesUpdate")
 end)
 
 hooks.Add("PostEngineLoad", function() 
@@ -201,4 +318,14 @@ hooks.Add("PostEngineLoad", function()
 	engine.entities.Register("Engine/entities/base", "base")
 	engine.entities.Register("Engine/entities/wall", "wall")
 	engine.entities.Register("Engine/entities/mob", "mob")
+end)
+
+engine.AddCVar("debug_entities", false, "Enable the debugging of entity information")
+
+hooks.Add("PostGameDraw", function() 
+	-- Debug information
+	if (engine.GetCVar("debug_entities", false) == false) then return end
+	for k, ent in ipairs(engine.entities.GetAll()) do
+		love.graphics.circle("fill", ent.x, ent.y, 2)
+	end
 end)

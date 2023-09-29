@@ -87,6 +87,13 @@ function love.keypressed(key, scancode, isrepeat)
 	if (scancode == "f6" and not isrepeat) then
 		local v = engine.GetCVar("debug_rendering", false)
 		engine.SetCVar("debug_rendering", not v)
+		return
+	end
+
+	if (scancode == "f3" and not isrepeat) then
+		local v = engine.GetCVar("debug_entities", false)
+		engine.SetCVar("debug_entities", not v)
+		return
 	end
 
 	hooks.Fire("OnKeyPressed", key, scancode, isrepeat)
