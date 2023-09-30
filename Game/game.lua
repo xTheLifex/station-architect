@@ -26,7 +26,7 @@ hooks.Add("OnGameLoad", function()
 		end
 	end
 
-	for i=0,2000 do
+	for i=0,20 do
 		engine.entities.Create("mob", {
 			x = 8 * i ,
 			y = 8 * i

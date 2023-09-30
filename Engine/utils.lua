@@ -141,6 +141,9 @@ oBit = utils.oBit -- Global
 
 -- Returns if a given value is valid and safe to use.
 function utils.IsValid(v)
+
+	function e(x) return not (x == nil) end
+
 	-- There is room for improvement and handling custom data types here.
 	if (v == nil) then return false end
 	if (isstring(v)) then
@@ -148,6 +151,17 @@ function utils.IsValid(v)
 	end
 	if (istable(v)) then
 		if (#v == 0) then return false end
+	end
+	if (isent(v)) then
+		if e(v.x) then return false end
+		if e(v.y) then return false end
+		if e(v.id) then return false end
+		if e(v.type) then return false end
+
+		-- Entity is deleted and awaiting cleanup, once that system is implemented of course.
+		if (v.deleted ~= nil and v.deleted == true) then
+			return false
+		end
 	end
 	return true
 end
@@ -178,6 +192,16 @@ end
 
 utils.clamp = utils.Clamp
 math.clamp = utils.clamp
+
+function utils.RemoveExtension(str)
+	if (type(str) ~= "string") then return "" end
+	return string.match(str, "(.+)%..+$")
+end
+
+function utils.GetDirectoryContents(dir)
+	-- TODO: Check dir existance.
+	return love.filesystem.getDirectoryItems(dir)
+end
 
 
 -- -------------------------------------------------------------------------- --
@@ -211,6 +235,20 @@ function utils.isfunction(val)
 	return type(val) == "function"
 end
 
+-- Custom types
+
+-- Returns true if given value is a entity
+function utils.isent(val)
+	if (type(val) ~= "table") then return false end
+	local meta = getmetatable(val)
+
+	for index, template in pairs(engine.entities.registry) do
+		if (meta == template) then return true end
+	end
+
+	return false
+end
+
 -- Converts a given value into a boolean if possible
 function utils.tobool(val)
 	if (type(val) == "boolean") then
@@ -240,6 +278,7 @@ isfunction	= utils.isfunction
 isfunc		= utils.isfunc
 ismethod	= utils.ismethod
 tobool		= utils.tobool
+isent		= utils.isent
 
 -- Type flag table
 engine.type = engine.type or {
@@ -279,15 +318,9 @@ end
 GetType = utils.GetType
 
 
-function utils.RemoveExtension(str)
-	if (type(str) ~= "string") then return "" end
-	return string.match(str, "(.+)%..+$")
-end
-
-function utils.GetDirectoryContents(dir)
-	-- TODO: Check dir existance.
-	return love.filesystem.getDirectoryItems(dir)
-end
+-- -------------------------------------------------------------------------- --
+--                                    Mouse                                   --
+-- -------------------------------------------------------------------------- --
 
 function utils.MousePos()
 	local x,y = love.mouse.getPosition()

@@ -37,6 +37,8 @@ function love.load()
 	engine.Log("[Core] " .. "Loaded world module.")
 	require("Engine/rendering")
 	engine.Log("[Core] " .. "Loaded rendering module.")
+	require("Engine/physics")
+	engine.Log("[Core] " .. "Loaded physics module.")
 	
 	if (intro) then
 		require("Engine/Intro/intro")
@@ -52,6 +54,7 @@ function love.load()
 	--love.math.setRandomSeed( CurTime() )
 	math.randomseed( CurTime() )
 	
+---@diagnostic disable-next-line: param-type-mismatch
 	engine.Log("[Core] " .. "Applied seed to random generator: " .. os.time(os.date("!*t")))
 	-- ---------------------------------- Setup --------------------------------- --
 	engine.Log("[Core] " .. "Setting up CVars...")
@@ -93,6 +96,12 @@ function love.keypressed(key, scancode, isrepeat)
 	if (scancode == "f3" and not isrepeat) then
 		local v = engine.GetCVar("debug_entities", false)
 		engine.SetCVar("debug_entities", not v)
+		return
+	end
+
+	if (scancode == "f2" and not isrepeat) then
+		local v = engine.GetCVar("debug_physics", false)
+		engine.SetCVar("debug_physics", not v)
 		return
 	end
 

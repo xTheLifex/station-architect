@@ -43,8 +43,9 @@ engine.entities.Create = function(name, data)
     end
 	
 	-- TODO: Move alot of those verifications and hardcodes to the entity registration, keep out of the entity creation
+
 	local template = engine.entities.registry[name]
-	
+
 	local x = isnumber(data["x"]) and data["x"] or 0
 	local y = isnumber(data["y"]) and data["y"] or 0
 	local tilepos = engine.world.grid.FromWorldPos(x,y)
@@ -53,6 +54,7 @@ engine.entities.Create = function(name, data)
 	local targetname = data["targetname"] or data["name"] or "*"
 	local id = #engine.entities.registry + 1
 	local ent = deepCopyWithInheritance(template)
+	setmetatable(ent, template)
 	local center = data["center"] or {16, 16, ["x"] = 16, ["y"] = 16}
 	center[1] = center[1] or 16
 	center[2] = center[2] or 16
@@ -303,6 +305,24 @@ engine.entities.Register = function(path, index)
 			end
 		end
 	end
+
+	ent.Delete = function(ent)
+		engine.entities.DeleteID(ent.id)
+	end
+
+	ent.SetPos = function(ent, x, y)
+		ent.x = x
+		ent.y = y
+	end
+
+	ent.GetPos = function (ent)
+		return {
+			ent.x,
+			ent.y,
+			["x"] = ent.x,
+			["y"] = ent.y
+		}
+	end
 	
 	engine.Log("[Entities] Registering entity " .. index .. ".") 
 	engine.entities.registry[index] = ent
@@ -321,6 +341,7 @@ hooks.Add("OnGameUpdate", function(deltaTime)
 	hooks.Fire("PreEntitiesUpdate")
 	for k, ent in ipairs(engine.world.entities) do
 		if (ent.OnUpdate ~= nil and isfunction(ent.OnUpdate)) then
+			-- Entity update method
 			ent:OnUpdate(deltaTime)
 			-- Validate position
 			if (ent.x > max.x) then ent.x = max.x end
@@ -362,4 +383,4 @@ hooks.Add("PostGameDraw", function()
 	for k, ent in ipairs(engine.entities.GetAll()) do
 		love.graphics.circle("fill", ent.x, ent.y, 2)
 	end
-end)
+end)	
