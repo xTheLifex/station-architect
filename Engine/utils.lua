@@ -143,10 +143,9 @@ oBit = utils.oBit -- Global
 
 -- Returns if a given value is valid and safe to use.
 function utils.IsValid(v)
-
-	function e(x) return not (x == nil) end
-
 	-- There is room for improvement and handling custom data types here.
+	function e(x) return (x == nil) end
+	
 	if (v == nil) then return false end
 	if (isstring(v)) then
 		if (v == "") then return false end
@@ -251,6 +250,35 @@ function utils.isent(val)
 	return false
 end
 
+-- Returns true if given value is a color
+function utils.iscolor(val)
+	if (not istable(val)) then return false end
+	if (val[1] == nil) then return false end
+	if (val[2] == nil) then return false end
+	if (val[3] == nil) then return false end
+	if (not isnumber(val[1])) then return false end
+	if (not isnumber(val[2])) then return false end
+	if (not isnumber(val[3])) then return false end
+	if (not IsValid(val.r)) then return false end
+	if (not IsValid(val.g)) then return false end
+	if (not IsValid(val.b)) then return false end
+	return true
+end
+
+function utils.isvector(val)
+	if (not istable(val)) then return false end
+	if (val[1] == nil) then return false end
+	if (val[2] == nil) then return false end
+	if (val[3] == nil) then return false end
+	if (not isnumber(val[1])) then return false end
+	if (not isnumber(val[2])) then return false end
+	if (not isnumber(val[3])) then return false end
+	if (val["x"] ~= nil and not isnumber(val["x"])) then return false end
+	if (val["y"] ~= nil and not isnumber(val["y"])) then return false end
+	if (val["z"] ~= nil and not isnumber(val["z"])) then return false end
+	return true
+end
+
 -- Converts a given value into a boolean if possible
 function utils.tobool(val)
 	if (type(val) == "boolean") then
@@ -276,6 +304,8 @@ isbool 		= utils.isbool
 istable		= utils.istable
 isstring	= utils.isstring
 isnumber	= utils.isnumber
+iscolor 	= utils.iscolor
+isvector	= utils.isvector
 isfunction	= utils.isfunction
 isfunc		= utils.isfunc
 ismethod	= utils.ismethod
@@ -286,30 +316,29 @@ isent		= utils.isent
 engine.type = engine.type or {
 	[oBit(1)]	= "string",
 	[oBit(2)]	= "number",
-	[oBit(3)]	= "player",
-	[oBit(4)]	= "character",
-	[oBit(5)]	= "clientid",
-	[oBit(6)]	= "bool",
-	[oBit(7)]	= "color",
-	[oBit(8)]	= "vector",
-	[oBit(9)]	= "table",
-	[oBit(10)]	= "func",
+	[oBit(3)]	= "bool",
+	[oBit(4)]	= "color",
+	[oBit(5)]	= "vector",
+	[oBit(6)]	= "table",
+	[oBit(7)]	= "func",
+	[oBit(8)]	= "entity",
 
 	string 		=	oBit(1),
 	number 		=	oBit(2),
-	player 		=	oBit(3),
-	character 	=	oBit(4),
-	clientid 	=	oBit(5),
-	bool 		=	oBit(6),
-	color 		=	oBit(7),
-	vector 		=	oBit(8),
-	table		=	oBit(9),
-	func		=	oBit(10)
+	bool 		=	oBit(3),
+	color 		=	oBit(4),
+	vector 		=	oBit(5),
+	table		=	oBit(6),
+	func		=	oBit(7),
+	entity		=	oBit(8)
 }
 
 -- Returns the engine type of value v
 -- TODO: Custom types
 function utils.GetType(v)
+	if (iscolor(v)) then return engine.type.color end
+	if (isent(v)) then return engine.type.entity end
+	if (isvector(v)) then return engine.type.vector end
 	if (isstring(v)) then return engine.type.string end
 	if (isnumber(v)) then return engine.type.number end
 	if (istable(v)) then return engine.type.table end
