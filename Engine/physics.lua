@@ -4,6 +4,13 @@ engine.physics.collisions = {}
 engine.physics.colliding = {}
 
 -- -------------------------------------------------------------------------- --
+--                                External Use                                --
+-- -------------------------------------------------------------------------- --
+
+
+
+
+-- -------------------------------------------------------------------------- --
 --                                  Internal                                  --
 -- -------------------------------------------------------------------------- --
 
@@ -98,6 +105,10 @@ engine.physics.CheckCollisions = function()
     engine.physics.collisions = collisions
 end
 
+engine.physics.ResolveCollisions = function()
+
+end
+
 engine.physics.RepelObjects = function ()
     
 end
@@ -111,7 +122,7 @@ hooks.Add("OnEngineUpdate", function()
     hooks.Fire("OnPhysicsUpdate")
 
     engine.physics.CheckCollisions()
-
+    engine.physics.ResolveCollisions()
 
     hooks.Fire("PostPhysicsUpdate")
 end)
@@ -148,6 +159,9 @@ hooks.Add("PostGameDraw", function()
         end
 
         love.graphics.setColor(1,1,1)
+        if (ent.bbox and ent.bbox.top and ent.bbox.bottom) then
+            love.graphics.rectangle("line", ent.x + ent.bbox.top.x, ent.y + ent.bbox.top.y, ent.bbox.bottom.x - ent.bbox.top.x, ent.bbox.bottom.y - ent.bbox.top.y)
+        end
     end
 
     for a,targets in pairs(engine.physics.collisions) do
@@ -157,8 +171,3 @@ hooks.Add("PostGameDraw", function()
     end
 
 end)
-
-
--- -------------------------------------------------------------------------- --
---                                External Use                                --
--- -------------------------------------------------------------------------- --

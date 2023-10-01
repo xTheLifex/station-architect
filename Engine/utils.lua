@@ -369,3 +369,4 @@ function utils.Vector(x,y)
 end
 
 Vector = utils.Vector
+Vec = utils.Vector

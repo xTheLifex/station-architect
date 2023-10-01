@@ -324,6 +324,17 @@ engine.entities.Register = function(path, index)
 		}
 	end
 	
+	if (ent.collider ~= nil) then
+		if (ent.collider.type == "circle") then
+			ent.bbox = ent.bbox or {}
+			ent.bbox.top = Vec(-ent.collider.radius, -ent.collider.radius)
+			ent.bbox.bottom = Vec(ent.collider.radius, ent.collider.radius)
+		else
+			ent.bbox.top = Vec(-16, -16)
+			ent.bbox.bottom = Vec(16, 16)
+		end
+	end
+
 	engine.Log("[Entities] Registering entity " .. index .. ".") 
 	engine.entities.registry[index] = ent
 end
@@ -366,9 +377,9 @@ end)
 hooks.Add("PostEngineLoad", function() 
 	engine.Log("[Entities] Module init. Loading entity definitons...")
 	
-	engine.entities.Register("Engine/entities/base", "base")
-	engine.entities.Register("Engine/entities/wall", "wall")
-	engine.entities.Register("Engine/entities/mob", "mob")
+	engine.entities.Register("Engine/Entities/base", "base")
+	engine.entities.Register("Engine/Entities/wall", "wall")
+	engine.entities.Register("Engine/Entities/mob", "mob")
 end)
 
 -- -------------------------------------------------------------------------- --
