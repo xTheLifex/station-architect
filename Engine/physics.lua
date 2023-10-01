@@ -7,7 +7,64 @@ engine.physics.colliding = {}
 --                                External Use                                --
 -- -------------------------------------------------------------------------- --
 
+-- Returns the first entity found in the circle or false if none is found.
+engine.physics.CircleCheck = function(x,y, radius, colliderOnly, filter)
+    local conly = colliderOnly or true
+    
+    for _,ent in ipairs(engine.world.entities) do
+        if (ent.collider) then
+            if (ent.collider.type == "circle") then
+                local centerDistance = utils.Distance(ent.x, ent.y, x, y)
+                            
+                -- If the distance between their centers is less than the sum of their radiuses...
+                if (centerDistance < ent.collider.radius + radius) then
+                    if (filter ~= nil and filter(ent) == true) then
+                        return ent
+                    end
+                end
+            elseif(ent.collider.type == "edge") then
+                -- TODO
+            end
+        else
+            if (conly and utils.Distance(ent.x,ent.y,x,y) < radius) then
+                if (filter ~= nil and filter(ent) == true) then
+                    return ent
+                end
+            end
+        end
+    end
+    return false
+end
 
+-- Returns all entities found in the circle.
+engine.physics.CircleCheckAll = function(x,y, radius, colliderOnly, filter)
+    local conly = colliderOnly or true
+    local results = {}
+    
+    for _,ent in ipairs(engine.world.entities) do
+        if (ent.collider) then
+            if (ent.collider.type == "circle") then
+                local centerDistance = utils.Distance(ent.x, ent.y, x, y)
+                            
+                -- If the distance between their centers is less than the sum of their radiuses...
+                if (centerDistance < ent.collider.radius + radius) then
+                    if (filter ~= nil and filter(ent) == true) then
+                        table.insert(results,ent)
+                    end
+                end
+            elseif(ent.collider.type == "edge") then
+                -- TODO
+            end
+        else
+            if (conly and utils.Distance(ent.x,ent.y,x,y) < radius) then
+                if (filter ~= nil and filter(ent) == true) then
+                    table.insert(results,ent)
+                end
+            end
+        end
+    end
+    return results
+end
 
 
 -- -------------------------------------------------------------------------- --
@@ -105,16 +162,66 @@ engine.physics.CheckCollisions = function()
     engine.physics.collisions = collisions
 end
 
+-- engine.world.IsWithinBoundaries
+
 engine.physics.ResolveCollisions = function()
-
+    for a,targets in pairs(engine.physics.collisions) do
+        for _,b in ipairs(targets) do
+            engine.physics.RepelObjects(a,b)
+        end
+    end
 end
 
-engine.physics.RepelObjects = function ()
-    
+engine.physics.RepelObjects = function (a,b)
+    local dx = a.x - b.x
+    local dy = a.y - b.y
+    local dist = utils.Distance(a.x,a.y,b.x,b.y)
+
+    if (a.collider.type == "circle" and b.collider.type == "circle") then
+        local overlap = (a.collider.radius + b.collider.radius) - dist
+        if (overlap > 0) then
+            local normalX = dx/dist
+            local normalY = dy/dist
+
+            local penA = overlap * 0.5
+            local penB = overlap * 0.5
+
+            a.x = a.x + penA * normalX
+            a.y = a.y + penA * normalY
+            
+            b.x = b.x + penB * normalX
+            b.y = b.y + penB * normalY
+            
+        end
+    end
 end
 
-engine.physics.SnapToSafePosition = function ()
+engine.physics.SnapToSafePosition = function (ent)
+    local MAX_ATTEMPTS = 128
+    local PRECISION = 24
+    local STEP = 360 / PRECISION
     
+    if (ent.collider.type == "circle") then
+        for angle = 0, 360, STEP do
+            for dist = 1, ent.collider.radius * 2, 2 do
+                local radians = math.rad(angle)
+                local offsetX = math.cos(radians) * dist
+                local offsetY = math.sin(radians) * dist
+        
+                local targetX = ent.x + offsetX
+                local targetY = ent.y + offsetY
+        
+                local col = engine.physics.CircleCheck(targetX, targetY, ent.collider.radius, true, function(e) return e ~= ent end)
+                if (col == false) then
+                    ent.x = targetX
+                    ent.y = targetY
+                    return
+                end
+            end
+        end
+    end
+    engine.Log("[Physics] Failed to find safe spot for colliding entity " .. ent.id)
+
 end
 
 hooks.Add("OnEngineUpdate", function()

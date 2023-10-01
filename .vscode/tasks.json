@@ -5,8 +5,8 @@
     "tasks": [
         {
             "label": "Run",
-            "type": "process",
-            "command": "Station Architect.bat",
+            "type": "shell",
+            "command": "bash Linux.sh",
             "problemMatcher": [],
             "group": {
                 "kind": "build",
