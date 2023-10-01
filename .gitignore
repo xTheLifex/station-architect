@@ -1,2 +1,4 @@
 Game/Data/cvars.ini
 Engine/Logs/*
+.vscode/*
+.vscode/tasks.json
