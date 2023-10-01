@@ -55,11 +55,6 @@ engine.entities.Create = function(name, data)
 	local id = #engine.entities.registry + 1
 	local ent = deepCopyWithInheritance(template)
 	setmetatable(ent, template)
-	local center = data["center"] or {16, 16, ["x"] = 16, ["y"] = 16}
-	center[1] = center[1] or 16
-	center[2] = center[2] or 16
-	center.x = center.x or center[1]
-	center.y = center.y or center[2]
 
 	for k,v in pairs(data) do
 		ent[k] = v
@@ -71,7 +66,6 @@ engine.entities.Create = function(name, data)
 	ent.tiley = tiley
 	ent.gridx = tilex
 	ent.gridy = tiley
-	ent.center = center
 	ent.targetname = targetname or "*"
 	engine.entities.lastID = engine.entities.lastID + 1
 	ent.id = engine.entities.lastID
@@ -334,6 +328,14 @@ engine.entities.Register = function(path, index)
 			ent.bbox.bottom = Vec(16, 16)
 		end
 	end
+
+	local center = ent.center or Vec(16,16)
+	center[1] = center[1] or 16
+	center[2] = center[2] or 16
+	center.x = center.x or center[1]
+	center.y = center.y or center[2]
+
+	ent.center = center
 
 	engine.Log("[Entities] Registering entity " .. index .. ".") 
 	engine.entities.registry[index] = ent
