@@ -122,14 +122,16 @@ end
 LogDebug = engine.LogDebug
 DebugLog = engine.LogDebug
 
---TODO: Improve with networking.
+-- Maintains the original require function preserved.
+engine.lua = engine.lua or {}
+engine.lua.require = require
 function engine.Include(path)
 	if (string.endsWith(path, ".lua")) then
 		hooks.Fire("OnFileIncluded", path)
 	else
 		hooks.Fire("OnFileIncluded", path .. ".lua")
 	end
-	return require(path)
+	return engine.lua.require(path)
 end
 
 

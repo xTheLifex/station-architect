@@ -2,6 +2,8 @@ engine = engine or {}
 engine.refresh = engine.refresh or {}
 engine.refresh.nextTick = engine.refresh.nextTick or 0
 engine.refresh.trackedFiles = engine.refresh.trackedFiles or {}
+engine.lua = engine.lua or {}
+engine.lua.require = engine.lua.require or require
 
 hooks.Add("OnSetupCVars", function()
     engine.AddCVar("lua_tick", 0.5, "The amount of time between checks for refreshing lua files.")
@@ -9,9 +11,7 @@ end)
 
 function engine.refresh.AddFile(path)
     local ref = engine.refresh.trackedFiles[path]
-    if (ref) then
-        engine.Log("[Lua-Refresh] " .. "WARNING! Tried to include to refresh list a lua file [" .. file .. "] that has already been included.")
-    else
+    if (not ref) then
         engine.Log("[Lua-Refresh] Registering [" .. path .. "]")
         engine.refresh.trackedFiles[path] = file.info(path).modtime or CurTime()
     end
@@ -32,7 +32,7 @@ function engine.refresh.RefreshLua()
             local data = love.filesystem.load(f)
             hooks.Fire("BeforeLuaRefresh", f)
             if (data) then
-                data()
+                return data()
             end
         end
         if (r) then
@@ -53,3 +53,7 @@ end)
 hooks.Add("OnFileIncluded", function (path)
     engine.refresh.AddFile(path)
 end)
+
+
+-- Replace the default require behaviour
+require = engine.Include
