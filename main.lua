@@ -4,7 +4,6 @@ serialize = serialize or require("Engine.Libs.ser")
 engine.quitReady = false
 engine.libs = engine.libs or {}
 love.filesystem.setIdentity("RexEngine")
-loveframes = nil
 
 local intro = false
 
@@ -25,10 +24,14 @@ function love.load()
 	engine.Log("[Core] " .. "Loaded file module.")
 	require("Engine/routines")
 	engine.Log("[Core] " .. "Loaded routines module.")
-	-- ! WILL NOT FIX ! --
-	--require("Engine/refresh") -- ! BROKEN ! --
-	--engine.Log("[Core] " .. "Loaded lua dynamic refresh module.") -- ! BROKEN ! --
-	
+
+	-- ! DISABLED ! --
+	-- The live-updating is cool, but it isn't perfect, and it might create a multitude of issues
+	-- that i'm not willing to fix, or maintain.
+	-- It will be disabled until further notice.
+	--require("Engine/refresh")
+	--engine.Log("[Core] " .. "Loaded lua dynamic refresh module.")
+
 	require("Engine/assets")
 	engine.Log("[Core] " .. "Loaded assets module.")
 	require("Engine/entities")
@@ -108,7 +111,7 @@ function love.keypressed(key, scancode, isrepeat)
 	hooks.Fire("OnKeyPressed", key, scancode, isrepeat)
 end
 
-function love.keyreleased()
+function love.keyreleased(key, scancode, isrepeat)
 	hooks.Fire("OnKeyReleased", key, scancode, isrepeat)	
 end
 
