@@ -172,33 +172,35 @@ engine.physics.ResolveCollisions = function()
     end
 end
 
-engine.physics.RepelObjects = function (a,b)
-    local dx = a.x - b.x
-    local dy = a.y - b.y
-    local dist = utils.Distance(a.x,a.y,b.x,b.y)
+engine.physics.RepelObjects = function(a, b)
+    -- Calculate the direction from a to b
+    local direction_ab = {x = b.x - a.x, y = b.y - a.y}
+    local distance = math.sqrt(direction_ab.x * direction_ab.x + direction_ab.y * direction_ab.y)
 
-    if (a.collider.type == "circle" and b.collider.type == "circle") then
-        local overlap = (a.collider.radius + b.collider.radius) - dist
-        if (overlap > 0) then
-            local normalX = dx/dist
-            local normalY = dy/dist
+    -- Calculate the overlap based on the sum of radii
+    local overlap = a.collider.radius + b.collider.radius - distance
 
-            local penA = overlap * 0.5
-            local penB = overlap * 0.5
+    if overlap > 0 then
+        -- Calculate the repel force based on the overlap
+        local repel_force = overlap * 0.015
 
-            a.x = a.x + penA * normalX
-            a.y = a.y + penA * normalY
-            
-            b.x = b.x + penB * normalX
-            b.y = b.y + penB * normalY
-            
-        end
+        -- Normalize the direction
+        direction_ab.x = direction_ab.x / distance
+        direction_ab.y = direction_ab.y / distance
+
+        -- Apply repelling forces to a and b
+        a.x = a.x - direction_ab.x * repel_force
+        a.y = a.y - direction_ab.y * repel_force
+
+        b.x = b.x + direction_ab.x * repel_force
+        b.y = b.y + direction_ab.y * repel_force
     end
 end
 
-engine.physics.SnapToSafePosition = function (ent)
+
+engine.physics.SnapToSafePosition = function (ent, precision)
     local MAX_ATTEMPTS = 128
-    local PRECISION = 24
+    local PRECISION = precision or 24
     local STEP = 360 / PRECISION
     
     if (ent.collider.type == "circle") then
@@ -221,7 +223,6 @@ engine.physics.SnapToSafePosition = function (ent)
         end
     end
     engine.Log("[Physics] Failed to find safe spot for colliding entity " .. ent.id)
-
 end
 
 hooks.Add("OnEngineUpdate", function()
