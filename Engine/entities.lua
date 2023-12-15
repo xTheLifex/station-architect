@@ -70,7 +70,10 @@ engine.entities.Create = function(name, data)
 	engine.entities.lastID = engine.entities.lastID + 1
 	ent.id = engine.entities.lastID
 	ent.type = name
-
+	ent.collider = data["collider"] or {
+		type = "circle",
+		radius = 16
+	}
 	table.insert(engine.world.entities, ent)
 	
 	if (ent.OnCreate ~= nil and isfunction(ent.OnCreate)) then
@@ -317,8 +320,18 @@ engine.entities.Register = function(path, index)
 			["y"] = ent.y
 		}
 	end
-	
+
+
+
 	if (ent.collider ~= nil) then
+		-- As of now, we are forcing all entities to use circle colliders.
+		ent.collider.type = "circle"
+		ent.collider.radius = ent.collider.radius or 16
+		
+		ent.bbox = ent.bbox or {}
+		ent.bbox.top = Vec(-ent.collider.radius, -ent.collider.radius)
+		ent.bbox.bottom = Vec(ent.collider.radius, ent.collider.radius)
+
 		if (ent.collider.type == "circle") then
 			ent.bbox = ent.bbox or {}
 			ent.bbox.top = Vec(-ent.collider.radius, -ent.collider.radius)

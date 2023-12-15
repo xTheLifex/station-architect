@@ -6,11 +6,20 @@ engine.world.grid = {}
 engine.world.grid.tilesize = 32
 engine.world.size = {128, 128}
 
+engine.world.colmap = {}
+engine.world.vismap = {}
+
 for x=0, engine.world.size[1] do
 	for y=0, engine.world.size[2] do
 		engine.world.tiles[x] = engine.world.tiles[x] or {}
 		engine.world.tiles[x][y] = engine.world.tiles[x][y] or {}
 		engine.world.tiles[x][y] = {} -- TODO: Replace with space tile
+
+		engine.world.colmap[x] = engine.world.colmap[x] or {}
+		engine.world.colmap[x][y] = false
+
+		engine.world.vismap[x] = engine.world.vismap[x] or {}
+		engine.world.vismap[x][y] = false
 	end
 end
 
