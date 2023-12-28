@@ -22,6 +22,7 @@ function file.close(f)
     end
 end
 
+---@diagnostic disable-next-line: duplicate-set-field
 function file.exists(path)
     local f = file.open(path, "r")
     if (f~=nil) then

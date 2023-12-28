@@ -1,3 +1,4 @@
+---@diagnostic disable: deprecated
 engine.routines = engine.routines or {}
 engine.routines.list = {}
 engine.routines.yields = {}

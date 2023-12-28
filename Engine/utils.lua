@@ -105,7 +105,7 @@ table.containskey = table.ContainsKey
 
 function engine.LogDebug(text, cvar)
 	if (not engine.cvars) then
-		engine.Log(text, color)
+		engine.Log(text)
 	end
 
 	if not (cvar == nil) then
