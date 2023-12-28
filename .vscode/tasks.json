@@ -11,7 +11,7 @@
             },
             "windows":{
                 "type": "process",
-                "command": "Station Architect.bat",
+                "command": "Windows.bat",
             },
             "problemMatcher": [],
             "group": {
