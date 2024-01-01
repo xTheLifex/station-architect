@@ -50,14 +50,30 @@ jobs:
       - name: Update Version File
         run: echo "${{ steps.increase_version.outputs.version }}" > version.txt
         
-      - name: Package
-        run: zip -9 -r StationArchitect.love .
+      - name: Package Engine Contents
+        run: |
+          zip -9 -r StationArchitect.love Engine
+          zip -9 -r StationArchitect.love main.lua
+          zip -9 -r StationArchitect.love conf.lua
 
-      - name: Package
+      - name: Create Executable
         run: cat love/love.exe StationArchitect.love > StationArchitect.exe
+
+      - name: Create Final Package
+        run: |
+          mkdir Bleeding
+          mv Game Bleeding/Game
+          mv StationArchitect.exe Bleeding/StationArchitect.exe
+          mv love/OpenAL32.dll Bleeding/OpenAL32.dll
+          mv love/SDL2.dll Bleeding/SDL2.dll
+          mv love/lua51.dll Bleeding/lua51.dll
+          mv love/mpg123.dll Bleeding/mpg123.dll
+          mv love/msvcp120.dll Bleeding/msvcp120.dll
+          mv love/msvcr120.dll Bleeding/msvcr120.dll
+          
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2
         with:
           name: artifact-build-bleeding
-          path: StationArchitect.exe
+          path: Bleeding
