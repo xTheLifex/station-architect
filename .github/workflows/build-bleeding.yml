@@ -70,6 +70,7 @@ jobs:
           mv love/mpg123.dll Bleeding/mpg123.dll
           mv love/msvcp120.dll Bleeding/msvcp120.dll
           mv love/msvcr120.dll Bleeding/msvcr120.dll
+          mv love/love.dll Bleeding/love.dll
           
 
       - name: Upload Artifacts
