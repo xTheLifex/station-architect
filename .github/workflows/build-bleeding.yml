@@ -28,14 +28,17 @@ jobs:
       # Runs a single command using the runners shell
       #- name: Run a one-line script
       #  run: echo Hello, world!
-
-      # Runs a set of commands using the runners shell
+      - name: Prepare
+        run: |
+          sudo apt-get install unzip
+          sudo apt-get install zip
+      
       - name: Setup Love2D
         run: |
-          sudo add-apt-repository ppa:bartbes/love-stable
-          sudo apt update
-          sudo apt-get install love
-      
+          wget https://github.com/love2d/love/releases/download/11.5/love-11.5-win64.zip
+          unzip love-11.5-win64.zip
+          mv love-11.5-win64 love
+
       - name: Get Current Version
         id: get_version
         run: echo "::set-output name=version::$(cat version.txt)"
@@ -48,10 +51,13 @@ jobs:
         run: echo "${{ steps.increase_version.outputs.version }}" > version.txt
         
       - name: Package
-        run: love --version && love . --export "StationArchitect" --version "${{ steps.increase_version.outputs.version }}" --author "TheLife"
+        run: zip -9 -r StationArchitect.love .
+
+      - name: Package
+        run: cat love/love.exe StationArchitect.love > StationArchitect.exe
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2
         with:
           name: artifact-build-bleeding
-          path: StationArchitect.love
+          path: StationArchitect.exe
