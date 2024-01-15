@@ -7,6 +7,8 @@ local BASE_SPEED = 15
 local MAX_ZOOM = 2
 local MIN_ZOOM = 0.5
 
+engine.rendering.missingtexture = love.graphics.newImage("Engine/Resources/missing.png")
+
 engine.rendering.GetZoom = function() 
 	return engine.rendering.camera.scale or 1
 end
@@ -28,6 +30,31 @@ engine.rendering.GetCameraSpeed = function()
 	return speed
 end
 
+function engine.rendering.DrawMissingTexture(x,y)
+	love.graphics.draw(engine.rendering.missingtexture, x,y)
+end
+
+function engine.rendering.DrawSprite(index, frame, dir, x, y)
+	local dir = dir or 1
+	dir = utils.DirFormat(utils.DirInt(dir))
+	local frame = frame or 0
+	
+	if (engine.assets.graphics[index] == nil) then engine.rendering.DrawMissingTexture(x,y) return end
+	local data = engine.assets.graphics[index]
+
+	if (data["directionaltype"] == engine.assets.SpriteDirectionType.FIXED) then
+		dir = 1
+	end
+	-- TODO: Translate for simple direction sprites.
+
+	local frames = data["frames"]
+	if not frames then engine.rendering.DrawMissingTexture(x,y) return end
+
+	local img = frames[frame][dir]
+	if not img then engine.rendering.DrawMissingTexture(x,y) return end
+
+	love.graphics.draw(img, x,y)
+end
 
 hooks.Add("OnSetupCVars", function()
     engine.AddCVar("debug_rendering", false, "Enable/Disable debugging information about Rendering.")
@@ -87,14 +114,17 @@ hooks.Add("OnGameDraw", function ()
 	local gmax = engine.world.grid.FromWorldPos(max.x, max.y)
 
 
+	hooks.Fire("PreDrawWorld")
 	for x=gmin.x+1, gmax.x do 
 		for y=gmin.y+1, gmax.y do
 			local tile = engine.world.tiles[x] and engine.world.tiles[x][y] or nil
 			if (IsValid(tile)) then
-				love.graphics.draw(tile, x * engine.world.grid.tilesize, y * engine.world.grid.tilesize)
+				engine.rendering.DrawSprite(tile, 0, 1,x * engine.world.grid.tilesize,y * engine.world.grid.tilesize)
 			end
 		end
 	end
+
+	hooks.Fire("PreDrawEntities")
 
 	-- Draw entities with their layer.
 	for i=0,3 do -- 3 layers for now.

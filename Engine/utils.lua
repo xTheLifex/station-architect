@@ -5,6 +5,13 @@ utils = utils or {}
 -- -------------------------------------------------------------------------- --
 --                                    Misc                                    --
 -- -------------------------------------------------------------------------- --
+function table.pasteOver(into, from)
+	local into = into
+	for k,v in pairs(from) do
+		into[k] = v
+	end
+	return into
+end
 
 function table.deepcopy(orig)
     local orig_type = type(orig)
@@ -76,7 +83,6 @@ function string.endsWith(str, ending)
 	return ending == "" or str:sub(-#ending) == ending
 end
 
-
 function table.indexOf(array, value)
     for i, v in ipairs(array) do
         if v == value then
@@ -102,6 +108,15 @@ function table.ContainsKey(table, key)
 	return table[key] ~= nil
 end
 table.containskey = table.ContainsKey
+
+function table.AllEqual(table, value)
+	for k,v in pairs(table) do
+		if (v ~= value) then
+			return false
+		end
+	end
+	return true
+end
 
 function engine.LogDebug(text, cvar)
 	if (not engine.cvars) then
@@ -204,7 +219,82 @@ function utils.GetDirectoryContents(dir)
 	return love.filesystem.getDirectoryItems(dir)
 end
 
+function utils.DirFormat(dir)
+	local dir = dir or 0
+	assert(type(dir) == "number", "Invalid direction to convert")
 
+	if dir > 0 then dir = math.floor(dir) end
+	if dir < 0 then dir = math.ceil(dir) end
+
+	if (dir > 8) then
+		while dir > 8 do
+			dir = dir - 8
+		end
+	end
+
+	if (dir < 1) then
+		while dir < 1 do
+			dir = dir + 8
+		end
+	end
+
+	return dir
+end
+
+function utils.DirString(intdir)
+	local intdir = utils.DirFormat(intdir) or 0
+	assert(type(intdir) == "number", "Invalid type for direction")
+
+    local t = {
+        [1] = "N",
+        [2] = "NE",
+        [3] = "E",
+        [4] = "SE",
+        [5] = "S",
+        [6] = "SW",
+        [7] = "W",
+        [8] = "NW"
+    }
+
+	return t[intdir]
+end
+
+function utils.DirInt(dir)
+	local t = {
+		["N"] = 1,
+		["NE"] = 2,
+		["E"] = 3,
+		["SE"] = 4,
+		["S"] = 5,
+		["SW"] = 6,
+		["W"] = 7,
+		["NW"] = 8
+	}
+	if (isnumber(dir)) then return dir end
+	
+	return t[dir] or 1
+end
+
+function utils.VectorToDir(vec)
+	if (vec == nil) then return nil end
+	if (not isvector(vec)) then return 1 end
+	local x,y = unpack(vec)
+
+	local angle = math.atan2(y,x)
+	local direction = math.deg(angle) + 180
+	local octant = math.floor((direction % 360)/45)+1
+
+	return octant
+end
+
+VectorToDir = utils.VectorToDir
+VecToDir = utils.VectorToDir
+DirString = utils.DirString
+DirectionString = utils.DirString
+DirFormat = utils.DirFormat
+DirectionFormat = utils.DirFormat
+DirInt = utils.DirInt
+DirectionInt = utils.DirInt
 -- -------------------------------------------------------------------------- --
 --                                    Types                                   --
 -- -------------------------------------------------------------------------- --
@@ -396,7 +486,7 @@ function utils.Distance (x1,y1, x2,y2)
 end
 
 function utils.Vector(x,y)
-	return {x,y, ["x"]=x, ["y"]=y}
+	return {[1] = x,[2] = y, ["x"]=x, ["y"]=y}
 end
 
 Vector = utils.Vector

@@ -6,23 +6,16 @@ end
 hooks.Add("OnGameLoad", function() 
 	game.Log("Game Loading!")
 	local sprites = {}
-	for i=0, 12 do
-		local asset = engine.assets.graphics.Simple["asteroid" .. i]
-		table.insert(sprites, asset["img"])
-	end
+
 	
 	game.asteroids = {}
 	local tilesize=32
 	for x=0,engine.world.size[1] do
 		for y=0,engine.world.size[2] do
-			local sprite
-			if (love.math.random(0,1) == 1) then
-				sprite = engine.assets.graphics.Simple["plating"]["img"]
-			else
-				sprite = sprites[love.math.random(1, #sprites)]
-			end
+			--local sprite = sprites[love.math.random(1, #sprites)]
 			--engine.entities.Create("tile", {x=ex, y=ey, sprite=sprite})
-			engine.world.SetTile(x,y, sprite)
+			-- TODO: Tile system and not just images with no behaviour?
+			engine.world.SetTile(x,y, "asteroid")
 		end
 	end
 

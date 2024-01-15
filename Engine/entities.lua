@@ -289,19 +289,25 @@ engine.entities.Register = function(path, index)
 		engine.Log("[Entities] Attempt to register un-indexed entity: " .. path)
 		return
 	end
+
+	-- TODO: Remove this later, move rendering entirely to engine rendering module.
 	
-	ent.DrawSelf = ent.DrawSelf or function(ent) 
-		if (ent.sprite ~= nil) then
-			if (type(ent.sprite) == "string") then
-				local asset = engine.assets.graphics.Simple[ent.sprite]["img"]
-				if (asset) then
-					love.graphics.draw(asset, ent.x - (ent.center[1] or 0), ent.y - (ent.center[2] or 0))
-				end
-			else
-				love.graphics.draw(ent.sprite, ent.x - (ent.center[1] or 0), ent.y - (ent.center[2] or 0))
-			end
-		end
+	ent.DrawSelf = ent.DrawSelf or function(ent)
+		return engine.rendering.DrawSprite(ent.sprite, 0, VecToDir(ent.dir), ent.x - (ent.center[1] or 0), ent.y - (ent.center[2] or 0) )
 	end
+
+	-- ent.DrawSelf = ent.DrawSelf or function(ent) 
+	-- 	if (ent.sprite ~= nil) then
+	-- 		if (type(ent.sprite) == "string") then
+	-- 			local asset = engine.assets.graphics.Simple[ent.sprite]["img"]
+	-- 			if (asset) then
+	-- 				love.graphics.draw(asset, ent.x - (ent.center[1] or 0), ent.y - (ent.center[2] or 0))
+	-- 			end
+	-- 		else
+	-- 			love.graphics.draw(ent.sprite, ent.x - (ent.center[1] or 0), ent.y - (ent.center[2] or 0))
+	-- 		end
+	-- 	end
+	-- end
 
 	ent.Delete = function(ent)
 		engine.entities.DeleteID(ent.id)

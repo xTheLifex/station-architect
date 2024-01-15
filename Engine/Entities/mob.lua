@@ -1,7 +1,7 @@
 local ent = {}
 ent.base = "base"
 ent.nextDirChange = 0
-ent.dir = { x = 0.0, y = 0.0 }
+ent.dir = Vector(0,0)
 ent.sprite = "meow"
 ent.speed = 12
 ent.tint = 1
