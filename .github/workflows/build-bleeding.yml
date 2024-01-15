@@ -1,0 +1,80 @@
+# This is a basic workflow to help you get started with Actions
+
+name: Bleeding-Edge Build
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the "main" branch
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v3
+
+      # Runs a single command using the runners shell
+      #- name: Run a one-line script
+      #  run: echo Hello, world!
+      - name: Prepare
+        run: |
+          sudo apt-get install unzip
+          sudo apt-get install zip
+      
+      - name: Setup Love2D
+        run: |
+          wget https://github.com/love2d/love/releases/download/11.5/love-11.5-win64.zip
+          unzip love-11.5-win64.zip
+          mv love-11.5-win64 love
+
+      - name: Get Current Version
+        id: get_version
+        run: echo "::set-output name=version::$(cat version.txt)"
+
+      - name: Increase Version
+        id: increase_version
+        run: echo "::set-output name=version::$((${{ steps.get_version.outputs.version }} + 1))"
+        
+      - name: Update Version File
+        run: echo "${{ steps.increase_version.outputs.version }}" > version.txt
+        
+      - name: Package Engine Contents
+        run: |
+          zip -9 -r StationArchitect.love Engine
+          zip -9 -r StationArchitect.love main.lua
+          zip -9 -r StationArchitect.love conf.lua
+
+      - name: Create Executable
+        run: cat love/love.exe StationArchitect.love > StationArchitect.exe
+
+      - name: Create Final Package
+        run: |
+          mkdir Bleeding
+          mv Game Bleeding/Game
+          mv StationArchitect.exe Bleeding/StationArchitect.exe
+          mv love/OpenAL32.dll Bleeding/OpenAL32.dll
+          mv love/SDL2.dll Bleeding/SDL2.dll
+          mv love/lua51.dll Bleeding/lua51.dll
+          mv love/mpg123.dll Bleeding/mpg123.dll
+          mv love/msvcp120.dll Bleeding/msvcp120.dll
+          mv love/msvcr120.dll Bleeding/msvcr120.dll
+          mv love/love.dll Bleeding/love.dll
+          
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: artifact-build-bleeding
+          path: Bleeding
