@@ -9,10 +9,12 @@ local MIN_ZOOM = 0.5
 
 engine.rendering.missingtexture = love.graphics.newImage("Engine/Resources/missing.png")
 
+-- Returns the current camera zoom
 engine.rendering.GetZoom = function() 
 	return engine.rendering.camera.scale or 1
 end
 
+-- Returns a Vector object of the current camera position.
 engine.rendering.CameraPos = function ()
 	local x,y = engine.rendering.camera:position()
 	return {
@@ -23,6 +25,7 @@ engine.rendering.CameraPos = function ()
 	}
 end
 
+-- Returns the current camera speed.
 engine.rendering.GetCameraSpeed = function()
 	local zoom = engine.rendering.GetZoom()
 	local speed = BASE_SPEED / zoom
@@ -30,10 +33,32 @@ engine.rendering.GetCameraSpeed = function()
 	return speed
 end
 
+-- Draws a missing texture on specificed x and y.
 function engine.rendering.DrawMissingTexture(x,y)
+	love.graphics.setColor(1,1,1,1)
 	love.graphics.draw(engine.rendering.missingtexture, x,y)
 end
 
+-- Returns a missing texture sprite object.
+function engine.rendering.GetMissingTexture()
+	return {
+		["dir"] = "internal",
+		["path"] = "internal",
+		["frames"] = {
+			[1] = engine.assets.DirTable(engine.rendering.missingtexture)
+		},
+		["index"] = "missingtexture",
+		["directionaltype"] =  engine.assets.SpriteDirectionType.FIXED,
+		["fps"] = 0
+	}
+end
+
+-- Returns a previously loaded texture object or a missing texture object.
+function engine.rendering.GetTexture(index)
+	return engine.assets.graphics[index] or engine.rendering.GetMissingTexture()
+end
+
+-- Draws a specified sprite based on its index name (not it's object)
 function engine.rendering.DrawSprite(index, frame, dir, x, y)
 	local dir = dir or 1
 	dir = utils.DirFormat(utils.DirInt(dir))
@@ -42,6 +67,8 @@ function engine.rendering.DrawSprite(index, frame, dir, x, y)
 	if (engine.assets.graphics[index] == nil) then engine.rendering.DrawMissingTexture(x,y) return end
 	local data = engine.assets.graphics[index]
 
+	if not data then engine.rendering.DrawMissingTexture(x,y) return end
+
 	if (data["directionaltype"] == engine.assets.SpriteDirectionType.FIXED) then
 		dir = 1
 	end
@@ -49,9 +76,18 @@ function engine.rendering.DrawSprite(index, frame, dir, x, y)
 
 	local frames = data["frames"]
 	if not frames then engine.rendering.DrawMissingTexture(x,y) return end
+	if not frames[frame] then engine.rendering.DrawMissingTexture(x,y) return end
 
-	local img = frames[frame][dir]
-	if not img then engine.rendering.DrawMissingTexture(x,y) return end
+	
+	local img = frames[frame][dir] or false
+	if not img then 
+		local fail = false
+		dir = 0
+		repeat
+			dir = dir + 1
+			if (dir > 8) then fail = true end
+		until ((frames[frame][dir] ~= nil) or (fail == true))	
+	return end
 
 	love.graphics.draw(img, x,y)
 end
@@ -119,7 +155,7 @@ hooks.Add("OnGameDraw", function ()
 		for y=gmin.y+1, gmax.y do
 			local tile = engine.world.tiles[x] and engine.world.tiles[x][y] or nil
 			if (IsValid(tile)) then
-				engine.rendering.DrawSprite(tile, 0, 1,x * engine.world.grid.tilesize,y * engine.world.grid.tilesize)
+				engine.rendering.DrawSprite(tile, 1, 1,x * engine.world.grid.tilesize,y * engine.world.grid.tilesize)
 			end
 		end
 	end

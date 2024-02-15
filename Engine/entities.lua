@@ -5,6 +5,8 @@ engine.entities.lastID = 0
 engine.world = engine.world or {}
 engine.world.entities = engine.world.entities or {}
 
+engine.entities.DEFAULT_FPS = 12
+
 -- -------------------------------------------------------------------------- --
 --                          Entity Creation Function                          --
 -- -------------------------------------------------------------------------- --
@@ -293,7 +295,22 @@ engine.entities.Register = function(path, index)
 	-- TODO: Remove this later, move rendering entirely to engine rendering module.
 	
 	ent.DrawSelf = ent.DrawSelf or function(ent)
-		return engine.rendering.DrawSprite(ent.sprite, 0, VecToDir(ent.dir), ent.x - (ent.center[1] or 0), ent.y - (ent.center[2] or 0) )
+		if not ent.sprite then return end
+		ent.nextFrame = ent.nextFrame or 0
+		ent.frame = ent.frame or 0
+		local data = engine.rendering.GetTexture(ent.sprite)
+		local totalframes = #data["frames"]
+
+		local fps = data["fps"]
+		ent.fps = ent.fps or fps or engine.entities.DEFAULT_FPS or 12
+		if (ent.nextFrame < CurTime()) then
+			ent.frame = ent.frame + 1
+			if (ent.frame >= totalframes) then
+				ent.frame = 1
+			end
+			ent.nextFrame = CurTime() + (1/ent.fps)
+		end
+		return engine.rendering.DrawSprite(ent.sprite, ent.frame, VecToDir(ent.dir), ent.x - (ent.center[1] or 0), ent.y - (ent.center[2] or 0) )
 	end
 
 	-- ent.DrawSelf = ent.DrawSelf or function(ent) 

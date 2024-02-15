@@ -86,12 +86,12 @@ end
 
 -- Imports a game icon texture
 engine.assets.ImportGraphics = function (containingDir, assetName, index)
-    local assetPath = containingDir .. "/" .. assetName
+    local assetPath = containingDir .. assetName
     local index = index or utils.RemoveExtension(assetName)
 
     -- ----------------------- Simple 1 file sprite, 1 dir ---------------------- --
     local info = love.filesystem.getInfo(assetPath)
-    if info.type == "file" then
+    if (info.type == "file") then
         -- It's a single file. Just import it easily.
         local asset = {}
         local img = love.graphics.newImage(assetPath)
@@ -100,7 +100,7 @@ engine.assets.ImportGraphics = function (containingDir, assetName, index)
         asset["path"] = assetPath
         asset["index"] = index
         asset["frames"] = {
-            [0] = engine.assets.DirTable(img)
+            [1] = engine.assets.DirTable(img)
         }
         asset["directionaltype"] = engine.assets.SpriteDirectionType.FIXED
 
@@ -117,9 +117,11 @@ engine.assets.ImportGraphics = function (containingDir, assetName, index)
         return asset
     elseif (info.type == "directory") then
         -- It's a directory.
-
         -- ---------------------- Simple 1 Dir Animated Sprites --------------------- --
-        if (file.exists(assetPath .. "/" .. assetName .. "0.png")) then
+        local one  = file.exists(assetPath .. "/" .. index .. "1.png")
+        local zero = file.exists(assetPath .. "/" .. index .. "0.png")
+
+        if (one or zero) then
             -- Directory contains a simple animated sprite format.
             local asset = {}
             asset["dir"] = containingDir
@@ -129,15 +131,15 @@ engine.assets.ImportGraphics = function (containingDir, assetName, index)
             asset["directionaltype"] = engine.assets.SpriteDirectionType.FIXED
 
             local i = 0
-            local path = assetPath .. "/" .. assetName .. i .. ".png"
+            if (one and not zero) then i = 1 end
+            local path = assetPath .. "/" .. index .. i .. ".png"
             while(file.exists(path)) do
-                
                 -- Import frame
                 local img = love.graphics.newImage(path)
                 asset["frames"][i] = engine.assets.DirTable(img)
 
                 i = i + 1
-                path = assetPath .. "/" .. assetName .. i .. ".png"
+                path = assetPath .. "/" .. index .. i .. ".png"
             end
 
             asset["fps"] = 24
@@ -205,7 +207,7 @@ hooks.Add("OnGameLoad", function()
 
     for _, asset in ipairs(ad1) do
 		local info = love.filesystem.getInfo(ap .. "1D/" .. asset)
-		if (info.type == "file") then
+		if (info.type == "directory") then
 			engine.assets.ImportGraphics(ap .. "1D/", asset)
 		end
 	end
@@ -216,8 +218,4 @@ hooks.Add("OnGameLoad", function()
     end
 
     engine.Log("[Assets] Imported " .. i .. " graphics." )
-
-    for k,v in pairs(engine.assets.graphics) do
-        engine.Log(k .. " - " .. v["index"])
-    end
 end)

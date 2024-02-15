@@ -2,10 +2,9 @@ local ent = {}
 ent.base = "base"
 ent.nextDirChange = 0
 ent.dir = Vector(0,0)
-ent.sprite = "meow"
+ent.sprite = "gcircuitanim"
 ent.speed = 12
 ent.tint = 1
-
 ent.collider = {
     type = "circle",
     radius = 16
@@ -32,8 +31,9 @@ function ent:OnUpdate(deltaTime)
 end
 
 function ent:OnDraw()
-    love.graphics.setColor(self.tint,1-self.tint,1-self.tint)
+    --love.graphics.setColor(self.tint,1-self.tint,1-self.tint)
 	self:DrawSelf()
+    love.graphics.print("F: " .. self.frame, self.x, self.y) 
 end
 
 return ent

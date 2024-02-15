@@ -211,7 +211,7 @@ math.clamp = utils.clamp
 
 function utils.RemoveExtension(str)
 	if (type(str) ~= "string") then return "" end
-	return string.match(str, "(.+)%..+$")
+	return string.match(str, "(.+)%..+$") or str
 end
 
 function utils.GetDirectoryContents(dir)
