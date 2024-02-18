@@ -7,6 +7,9 @@ local BASE_SPEED = 15
 local MAX_ZOOM = 2
 local MIN_ZOOM = 0.5
 
+love.graphics.setLineStyle('rough')
+love.graphics.setDefaultFilter("nearest", "nearest")
+
 engine.rendering.missingtexture = love.graphics.newImage("Engine/Resources/missing.png")
 
 -- Returns the current camera zoom
@@ -115,8 +118,6 @@ hooks.Add("OnMouseWheelDown", function(y)
 	if (zoom <= MIN_ZOOM) then return end
 	engine.rendering.camera:zoom(0.95)
 end)
-
-
 
 hooks.Add("OnGameUpdate", function(deltaTime) 
 
