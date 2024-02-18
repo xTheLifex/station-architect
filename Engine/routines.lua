@@ -29,6 +29,7 @@ function engine.routines.End(name)
     engine.routines.list[name] = nil
 end
 
+-- Suspends the current coroutine for specified seconds.
 function engine.routines.yields.WaitForSeconds(time)
     local target = CurTime() + time
     while (CurTime() < target) do
@@ -42,7 +43,14 @@ hooks.Add("OnEngineUpdate", function (dt)
             engine.Log("[Routines] Deleting dead coroutine [" .. name .. "]")
             engine.routines.End(name)
         else
-            coroutine.resume(co)
+            local result = {coroutine.resume(co)}
+            if result[1] == false then
+                error(string.format([[FATAL:
+Coroutine has crashed: %s.
+RESULT: %s 
+TRACEBACK: %s
+                ]], name, result[2], debug.traceback(co)))
+            end
         end
     end
 end)
