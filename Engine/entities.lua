@@ -413,6 +413,7 @@ end)
 -- -------------------------------------------------------------------------- --
 
 hooks.Add("PostEngineLoad", function() 
+	-- TODO: Make async
 	engine.Log("[Entities] Module init. Loading entity definitons...")
 	
 	engine.entities.Register("Engine/Entities/base", "base")

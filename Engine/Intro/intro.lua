@@ -18,13 +18,6 @@ local function LoadGame()
     hooks.Fire("PostGameLoad")
 end
 
-local function EndIntro()
-    intro:pause()
-    intro:release()
-    hooks.Remove("OnKeyPressed", EndIntro)
-    hooks.Remove("OnEngineDraw", DrawIntro)
-    LoadGame()
-end
 
 local function DrawIntro()
     if (not intro:isPlaying()) then
@@ -35,6 +28,15 @@ local function DrawIntro()
         love.graphics.draw(intro,0,0,0,sx,sy)
     end
 end
+
+local function EndIntro()
+    intro:pause()
+    intro:release()
+    hooks.Remove("OnKeyPressed", EndIntro)
+    hooks.Remove("OnEngineDraw", DrawIntro)
+    LoadGame()
+end
+
 
 hooks.Add("OnKeyPressed", EndIntro)
 hooks.Add("OnEngineDraw", DrawIntro)

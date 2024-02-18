@@ -4,6 +4,6 @@
 
 return {
     ["gcircuitanim"] = {
-        ["fps"] = 60
+        ["fps"] = 12
     }
 }

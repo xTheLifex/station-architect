@@ -59,14 +59,6 @@ engine.assets.DirTable = function (n,ne,e,se,s,sw,w,nw)
         [6] = sw,
         [7] = w,
         [8] = nw,
-        ["N"] = n,
-        ["NE"] = ne,
-        ["E"] = e,
-        ["SE"] = se,
-        ["S"] = s,
-        ["SW"] = sw,
-        ["W"] = w,
-        ["NW"] = nw
     }
 end
 
@@ -135,7 +127,8 @@ engine.assets.ImportGraphics = function (containingDir, assetName, index)
             local path = assetPath .. "/" .. index .. i .. ".png"
             while(file.exists(path)) do
                 -- Import frame
-                local img = love.graphics.newImage(path)
+                local img = love.graphics.newImage(path, {mipmaps=true})
+                img:setMipmapFilter("nearest", 0)
                 asset["frames"][i] = engine.assets.DirTable(img)
 
                 i = i + 1
@@ -184,10 +177,15 @@ hooks.Add("OnGameLoad", function()
 	local ad4 = love.filesystem.getDirectoryItems(ap .. "4D") -- Folders
 	local ad8 = love.filesystem.getDirectoryItems(ap .. "8D") -- Folders
 
+    local total = #sd1 + #sd4 + #sd8 + #ad1 + #ad4 + #ad8
+    local processed = 0
+
 	for _, asset in ipairs(sd1) do
 		local info = love.filesystem.getInfo(sp .. "1D/" .. asset)
 		if (info.type == "file") then
 			engine.assets.ImportGraphics(sp .. "1D/", asset)
+            processed = processed + 1
+            engine.routines.yields.LoadingYield("Importing Graphics (" .. processed .. "/" .. total .. ")")
 		end
 	end
 
@@ -209,6 +207,8 @@ hooks.Add("OnGameLoad", function()
 		local info = love.filesystem.getInfo(ap .. "1D/" .. asset)
 		if (info.type == "directory") then
 			engine.assets.ImportGraphics(ap .. "1D/", asset)
+            processed = processed + 1
+            engine.routines.yields.LoadingYield("Importing Graphics (" .. processed .. "/" .. total .. ")")
 		end
 	end
 
@@ -217,5 +217,6 @@ hooks.Add("OnGameLoad", function()
         i = i + 1
     end
 
+    hooks.Fire("PostLoadGraphics")
     engine.Log("[Assets] Imported " .. i .. " graphics." )
 end)

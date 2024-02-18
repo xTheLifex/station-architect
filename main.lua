@@ -43,6 +43,9 @@ function love.load()
 	require("Engine/physics")
 	engine.Log("[Core] " .. "Loaded physics module.")
 	
+	require("Engine/interface")
+	engine.Log("[Core] " .. "Loaded interface module.")
+
 	if (intro) then
 		require("Engine/Intro/intro")
 		engine.Log("[Core] " .. "Loaded intro module.")
@@ -64,21 +67,29 @@ function love.load()
 	hooks.Fire("OnSetupCVars")
 	hooks.Fire("PostSetupCVars")
 
-	engine.Log("[Core] " .. "Engine loaded!")
-	hooks.Fire("PostEngineLoad")
-	engine.quitReady = true
+	-- ----------------------------- Engine Loading ----------------------------- --
+	-- This was made async for loading screens.
+	engine.loading = true
+	engine.routines.New("EngineLoad", function ()
+		engine.Log("[Core] " .. "Engine loaded!")
+		hooks.Fire("PostEngineLoad")
+		engine.quitReady = true
+	
+		if (engine.GetCVar("debug_cvars", false)) then
+			engine.PrintCVars()
+		end
+	
+		if (not intro) then
+			engine.Log("[Core] " .. "Loading game...")
+			hooks.Fire("PreGameLoad")
+			require("Game/game")
+			hooks.Fire("OnGameLoad")
+			hooks.Fire("PostGameLoad")
+		end
 
-	if (engine.GetCVar("debug_cvars", false)) then
-		engine.PrintCVars()
-	end
-
-	if (not intro) then
-		engine.Log("[Core] " .. "Loading game...")
-		hooks.Fire("PreGameLoad")
-		require("Game/game")
-		hooks.Fire("OnGameLoad")
-		hooks.Fire("PostGameLoad")
-	end
+		engine.loading = false
+	end)
+	-- -------------------------------------------------------------------------- --
 end
 
 function love.keypressed(key, scancode, isrepeat)
@@ -128,6 +139,8 @@ function love.mousereleased(x, y, button)
 end
 
 function love.update(deltaTime)
+	if engine.loading == true then hooks.Fire("EngineLoadingScreenUpdate") end
+
 	hooks.Fire("PreEngineUpdate", deltaTime)
 	hooks.Fire("OnEngineUpdate", deltaTime)
 	hooks.Fire("PostEngineUpdate", deltaTime)
@@ -150,6 +163,8 @@ end
 
 function love.draw()
 	hooks.Fire("PreDraw")
+
+	if engine.loading == true then hooks.Fire("EngineLoadingScreenDraw") end
 	
 	hooks.Fire("OnCameraAttach")
 	hooks.Fire("PreGameDraw")

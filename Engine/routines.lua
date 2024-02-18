@@ -37,6 +37,12 @@ function engine.routines.yields.WaitForSeconds(time)
     end
 end
 
+-- Suspends the current coroutine and sets the loading text of the engine.
+engine.routines.yields.LoadingYield = function (text)
+    engine.loadingText = text or "Loading..."
+    coroutine.yield()
+end
+
 hooks.Add("OnEngineUpdate", function (dt)
     for name, co in pairs(engine.routines.list) do
         if (coroutine.status(co) == "dead") then
