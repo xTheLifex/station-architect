@@ -179,13 +179,17 @@ hooks.Add("OnGameLoad", function()
 
     local total = #sd1 + #sd4 + #sd8 + #ad1 + #ad4 + #ad8
     local processed = 0
+    --local interval = math.floor(total * 0.05)
+    local interval = 5
 
 	for _, asset in ipairs(sd1) do
 		local info = love.filesystem.getInfo(sp .. "1D/" .. asset)
 		if (info.type == "file") then
 			engine.assets.ImportGraphics(sp .. "1D/", asset)
             processed = processed + 1
-            engine.routines.yields.LoadingYield("Importing Graphics (" .. processed .. "/" .. total .. ")")
+            if (processed % interval == 0) then
+                engine.routines.yields.LoadingYield("Importing Graphics (" .. processed .. "/" .. total .. ")")
+            end
 		end
 	end
 
@@ -208,7 +212,9 @@ hooks.Add("OnGameLoad", function()
 		if (info.type == "directory") then
 			engine.assets.ImportGraphics(ap .. "1D/", asset)
             processed = processed + 1
-            engine.routines.yields.LoadingYield("Importing Graphics (" .. processed .. "/" .. total .. ")")
+            if (processed % interval == 0) then
+                engine.routines.yields.LoadingYield("Importing Graphics (" .. processed .. "/" .. total .. ")")
+            end
 		end
 	end
 
