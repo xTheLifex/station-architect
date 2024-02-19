@@ -305,7 +305,7 @@ engine.entities.Register = function(path, index)
 		ent.fps = ent.fps or fps or engine.entities.DEFAULT_FPS or 12
 		if (ent.nextFrame < CurTime()) then
 			ent.frame = ent.frame + 1
-			if (ent.frame >= totalframes) then
+			if (ent.frame > totalframes) then
 				ent.frame = 1
 			end
 			ent.nextFrame = CurTime() + (1/ent.fps)
