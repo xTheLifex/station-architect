@@ -1,14 +1,12 @@
 # This is a basic workflow to help you get started with Actions
 
-name: Bleeding-Edge Build
+name: MonthlyDev Development Build
 
 # Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the "main" branch
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+  schedule:
+    # * is a special character in YAML so you have to quote this string
+    - cron:  '0 23 1 * *'
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -58,20 +56,20 @@ jobs:
 
       - name: Create Final Package
         run: |
-          mkdir Bleeding
-          mv Game Bleeding/Game
-          mv StationArchitect.exe Bleeding/StationArchitect.exe
-          mv love/OpenAL32.dll Bleeding/OpenAL32.dll
-          mv love/SDL2.dll Bleeding/SDL2.dll
-          mv love/lua51.dll Bleeding/lua51.dll
-          mv love/mpg123.dll Bleeding/mpg123.dll
-          mv love/msvcp120.dll Bleeding/msvcp120.dll
-          mv love/msvcr120.dll Bleeding/msvcr120.dll
-          mv love/love.dll Bleeding/love.dll
+          mkdir MonthlyDev
+          mv Game MonthlyDev/Game
+          mv StationArchitect.exe MonthlyDev/StationArchitect.exe
+          mv love/OpenAL32.dll MonthlyDev/OpenAL32.dll
+          mv love/SDL2.dll MonthlyDev/SDL2.dll
+          mv love/lua51.dll MonthlyDev/lua51.dll
+          mv love/mpg123.dll MonthlyDev/mpg123.dll
+          mv love/msvcp120.dll MonthlyDev/msvcp120.dll
+          mv love/msvcr120.dll MonthlyDev/msvcr120.dll
+          mv love/love.dll MonthlyDev/love.dll
           
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: artifact-build-bleeding
-          path: Bleeding
+          name: artifact-build-monthly-dev
+          path: MonthlyDev
