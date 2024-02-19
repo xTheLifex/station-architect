@@ -211,7 +211,7 @@ engine.physics.RepelObjects = function(a, b)
 
     if overlap > 0 then
         -- Calculate the repel force based on the overlap
-        local repel_force = overlap * (0.005 + (0.0001 * num_of_collisions))
+        local repel_force = overlap * (0.01 + (0.0001 * num_of_collisions))
         
         -- Normalize the direction
         direction_ab.x = direction_ab.x / distance
