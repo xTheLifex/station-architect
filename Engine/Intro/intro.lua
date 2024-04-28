@@ -21,6 +21,7 @@ end
 
 local function DrawIntro()
     if (not intro:isPlaying()) then
+        ---@diagnostic disable-next-line: undefined-global
         EndIntro()
     else
         local sx = love.graphics.getWidth() / intro:getWidth()
