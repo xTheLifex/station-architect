@@ -54,7 +54,7 @@ jobs:
           mv love/msvcp120.dll Development/msvcp120.dll
           mv love/msvcr120.dll Development/msvcr120.dll
           mv love/love.dll Development/love.dll
-          cp -ra redist/. $destination/
+          mv redist/. $destination/
           chmod +x $destination/StationArchitect.sh
           
 
