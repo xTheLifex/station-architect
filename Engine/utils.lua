@@ -48,18 +48,18 @@ function engine.Include(path)
 	return engine.lua.require(path)
 end
 
-
 -- Bit array order
 function utils.oBit(n)
 	return math.pow(2, n)
 end
+
 oBit = utils.oBit -- Global
 
 -- Returns if a given value is valid and safe to use.
 function utils.IsValid(v)
 	-- There is room for improvement and handling custom data types here.
 	function e(x) return (x == nil) end
-	
+
 	if (v == nil) then return false end
 	if (isstring(v)) then
 		if (v == "") then return false end
@@ -80,26 +80,27 @@ function utils.IsValid(v)
 	end
 	return true
 end
+
 IsValid = utils.IsValid
 
 function utils.Clamp(val, n, m)
 	if (type(val) ~= "number") then return val end
-	
+
 	local min
 	local max
-	
+
 	if (n == m) then return val end
-	
+
 	if (n > m) then
 		max = n
 		min = m
 	end
-	
+
 	if (m > n) then
 		max = m
 		min = n
 	end
-	
+
 	if (val > max) then return max end
 	if (val < min) then return min end
 	return val
@@ -109,14 +110,16 @@ utils.clamp = utils.Clamp
 math.clamp = utils.clamp
 
 -- Linearly interpolates from a to b by t.
-function utils.lerp(a,b,t) return a * (1-t) + b * t end
+function utils.lerp(a, b, t) return a * (1 - t) + b * t end
+
 math.lerp = utils.lerp
 
 -- Finds the percentage that x represents between a and b.
-function utils.midpercent(x,a,b)
-	if (a>b) then return utils.midpercent(x,b,a) end
-	return math.clamp((x-a)/(b-a), 0,1)
+function utils.midpercent(x, a, b)
+	if (a > b) then return utils.midpercent(x, b, a) end
+	return math.clamp((x - a) / (b - a), 0, 1)
 end
+
 math.midpercent = utils.midpercent
 
 function utils.RemoveExtension(str)
@@ -125,10 +128,10 @@ function utils.RemoveExtension(str)
 end
 
 function utils.GetFileExtension(str)
-    if type(str) ~= "string" then
-        return ""
-    end
-    return string.match(str, "%.([^%.]+)$") or ""
+	if type(str) ~= "string" then
+		return ""
+	end
+	return string.match(str, "%.([^%.]+)$") or ""
 end
 
 function utils.GetDirectoryContents(dir)
@@ -162,16 +165,16 @@ function utils.DirString(intdir)
 	local intdir = utils.DirFormat(intdir) or 0
 	assert(type(intdir) == "number", "Invalid type for direction")
 
-    local t = {
-        [1] = "N",
-        [2] = "NE",
-        [3] = "E",
-        [4] = "SE",
-        [5] = "S",
-        [6] = "SW",
-        [7] = "W",
-        [8] = "NW"
-    }
+	local t = {
+		[1] = "N",
+		[2] = "NE",
+		[3] = "E",
+		[4] = "SE",
+		[5] = "S",
+		[6] = "SW",
+		[7] = "W",
+		[8] = "NW"
+	}
 
 	return t[intdir]
 end
@@ -188,18 +191,18 @@ function utils.DirInt(dir)
 		["NW"] = 8
 	}
 	if (isnumber(dir)) then return dir end
-	
+
 	return t[dir] or 1
 end
 
 function utils.VectorToDir(vec)
 	if (vec == nil) then return nil end
 	if (not isvector(vec)) then return 1 end
-	local x,y = unpack(vec)
+	local x, y = unpack(vec)
 
-	local angle = math.atan2(y,x)
+	local angle = math.atan2(y, x)
 	local direction = math.deg(angle) + 180
-	local octant = math.floor((direction % 360)/45)+1
+	local octant = math.floor((direction % 360) / 45) + 1
 
 	return octant
 end
@@ -221,8 +224,8 @@ function string.split(inputstr, sep)
 	if sep == nil then
 		sep = "%s"
 	end
-	local t={}
-	for str in string.gmatch(inputstr, "([^"..sep.."]+)") do
+	local t = {}
+	for str in string.gmatch(inputstr, "([^" .. sep .. "]+)") do
 		table.insert(t, str)
 	end
 	return t
@@ -231,17 +234,17 @@ end
 string.Split = string.split
 
 function string.remove(inputString, toRemove)
-    if type(inputString) ~= "string" or type(toRemove) ~= "string" then
-        return inputString
-    end
+	if type(inputString) ~= "string" or type(toRemove) ~= "string" then
+		return inputString
+	end
 
-    local startPos, endPos = string.find(inputString, toRemove)
+	local startPos, endPos = string.find(inputString, toRemove)
 
-    if startPos and endPos then
-        return string.sub(inputString, 1, startPos - 1) .. string.sub(inputString, endPos + 1)
-    else
-        return inputString
-    end
+	if startPos and endPos then
+		return string.sub(inputString, 1, startPos - 1) .. string.sub(inputString, endPos + 1)
+	else
+		return inputString
+	end
 end
 
 string.Remove = string.remove
@@ -259,7 +262,7 @@ end
 string.StartsWith = string.startsWith
 
 function string.endsWith(str, ending)
-	return ending == "" or str:sub(-#ending) == ending
+	return ending == "" or str:sub(- #ending) == ending
 end
 
 string.EndsWith = string.endsWith
@@ -269,40 +272,40 @@ function string.trim(str, max, breakLines, maxLines)
 	if not max or max <= 0 then return str end
 	local maxLines = maxLines or 3
 	local breakLines = breakLines and true or false
-	
+
 	if (breakLines == false) then
-        local trim = string.sub(str, 1, max-3)
-        
-        if trim == str then return str end
-	    return trim .. "..."
+		local trim = string.sub(str, 1, max - 3)
+
+		if trim == str then return str end
+		return trim .. "..."
 	end
-	
+
 	local count = 0
 	local result = ""
 	local lines = 1
-    for c in str:gmatch"." do
-        count = count + 1
-        
-        if (count >= max-3 and lines >= maxLines) then
-                 result = result .. "..."
-                 return result
-        end
-        
-        if (count > max) then
-            count = 0
-            
-            if (lines >= maxLines) then
-                 result = result .. "..."
-                 return result
-            end
-            
-            result = result .. "\n"
-            lines = lines + 1
-        end
-        result = result .. c
-    end
-    
-    return result
+	for c in str:gmatch "." do
+		count = count + 1
+
+		if (count >= max - 3 and lines >= maxLines) then
+			result = result .. "..."
+			return result
+		end
+
+		if (count > max) then
+			count = 0
+
+			if (lines >= maxLines) then
+				result = result .. "..."
+				return result
+			end
+
+			result = result .. "\n"
+			lines = lines + 1
+		end
+		result = result .. c
+	end
+
+	return result
 end
 
 string.Trim = string.trim
@@ -315,13 +318,13 @@ function string.wtrim(str, maxChars, maxLines)
 	local lineCount = 1
 	local result = ""
 
-	for _,word in ipairs(string.split(str," ")) do
+	for _, word in ipairs(string.split(str, " ")) do
 		if (charCount + #word + 3 > maxChars) then
-		    if (lineCount >= maxLines) then
-		        result = result .. "..."
-		        return result
-		    end
-        
+			if (lineCount >= maxLines) then
+				result = result .. "..."
+				return result
+			end
+
 			result = result .. "\n"
 			lineCount = lineCount + 1
 			charCount = 0
@@ -330,7 +333,7 @@ function string.wtrim(str, maxChars, maxLines)
 		charCount = charCount + #word + 1
 	end
 
-    return result
+	return result
 end
 
 string.wordTrim = string.wtrim
@@ -338,17 +341,17 @@ string.wordTrim = string.wtrim
 
 function string.unify(...)
 	local str = ""
-	for k,v in pairs({...}) do
+	for k, v in pairs({ ... }) do
 		if (type(v) == "string") then str = str .. v end
 		if (type(v) == "table") then
-			 for _,s in pairs(v) do
-				 if (type(s) == "string") then str = str .. s end
-			 end
+			for _, s in pairs(v) do
+				if (type(s) == "string") then str = str .. s end
+			end
 		end
 	end
-	
+
 	return str
- end
+end
 
 string.Unify = string.unify
 
@@ -358,44 +361,44 @@ string.Unify = string.unify
 -- -------------------------------------------------------------------------- --
 
 function table.clone(org)
-  return {table.unpack(org)}
+	return { table.unpack(org) }
 end
 
 function table.pasteOver(into, from)
 	local into = into
-	for k,v in pairs(from) do
+	for k, v in pairs(from) do
 		into[k] = v
 	end
 	return into
 end
 
 function table.deepcopy(orig)
-    local orig_type = type(orig)
-    local copy
-    if orig_type == 'table' then
-        copy = {}
-        for orig_key, orig_value in next, orig, nil do
-            copy[table.deepcopy(orig_key)] = table.deepcopy(orig_value)
-        end
-        setmetatable(copy, table.deepcopy(getmetatable(orig)))
-    else -- number, string, boolean, etc
-        copy = orig
-    end
-    return copy
+	local orig_type = type(orig)
+	local copy
+	if orig_type == 'table' then
+		copy = {}
+		for orig_key, orig_value in next, orig, nil do
+			copy[table.deepcopy(orig_key)] = table.deepcopy(orig_value)
+		end
+		setmetatable(copy, table.deepcopy(getmetatable(orig)))
+	else -- number, string, boolean, etc
+		copy = orig
+	end
+	return copy
 end
 
 function table.shallowcopy(orig)
-    local orig_type = type(orig)
-    local copy
-    if orig_type == 'table' then
-        copy = {}
-        for orig_key, orig_value in pairs(orig) do
-            copy[orig_key] = orig_value
-        end
-    else -- number, string, boolean, etc
-        copy = orig
-    end
-    return copy
+	local orig_type = type(orig)
+	local copy
+	if orig_type == 'table' then
+		copy = {}
+		for orig_key, orig_value in pairs(orig) do
+			copy[orig_key] = orig_value
+		end
+	else -- number, string, boolean, etc
+		copy = orig
+	end
+	return copy
 end
 
 table.pasteover = table.pasteOver
@@ -419,12 +422,12 @@ table.ilen = table.ilength
 
 
 function table.indexOf(array, value)
-    for i, v in ipairs(array) do
-        if v == value then
-            return i
-        end
-    end
-    return nil
+	for i, v in ipairs(array) do
+		if v == value then
+			return i
+		end
+	end
+	return nil
 end
 
 table.IndexOf = table.indexOf
@@ -438,16 +441,18 @@ function table.Contains(table, value)
 
 	return false
 end
+
 table.contains = table.Contains
 
 
 function table.ContainsKey(table, key)
 	return table[key] ~= nil
 end
+
 table.containskey = table.ContainsKey
 
 function table.AllEqual(table, value)
-	for k,v in pairs(table) do
+	for k, v in pairs(table) do
 		if (v ~= value) then
 			return false
 		end
@@ -546,41 +551,41 @@ function utils.tobool(val)
 	return false
 end
 
-utils.isfunc = utils.isfunction
+utils.isfunc   = utils.isfunction
 utils.ismethod = utils.isfunction
 
 -- Globals for default types
-isbool 		= utils.isbool
-istable		= utils.istable
-isstring	= utils.isstring
-isnumber	= utils.isnumber
-iscolor 	= utils.iscolor
-isvector	= utils.isvector
-isfunction	= utils.isfunction
-isfunc		= utils.isfunc
-ismethod	= utils.ismethod
-tobool		= utils.tobool
-isent		= utils.isent
+isbool         = utils.isbool
+istable        = utils.istable
+isstring       = utils.isstring
+isnumber       = utils.isnumber
+iscolor        = utils.iscolor
+isvector       = utils.isvector
+isfunction     = utils.isfunction
+isfunc         = utils.isfunc
+ismethod       = utils.ismethod
+tobool         = utils.tobool
+isent          = utils.isent
 
 -- Type flag table
-engine.type = engine.type or {
-	[oBit(1)]	= "string",
-	[oBit(2)]	= "number",
-	[oBit(3)]	= "bool",
-	[oBit(4)]	= "color",
-	[oBit(5)]	= "vector",
-	[oBit(6)]	= "table",
-	[oBit(7)]	= "func",
-	[oBit(8)]	= "entity",
+engine.type    = engine.type or {
+	[oBit(1)] = "string",
+	[oBit(2)] = "number",
+	[oBit(3)] = "bool",
+	[oBit(4)] = "color",
+	[oBit(5)] = "vector",
+	[oBit(6)] = "table",
+	[oBit(7)] = "func",
+	[oBit(8)] = "entity",
 
-	string 		=	oBit(1),
-	number 		=	oBit(2),
-	bool 		=	oBit(3),
-	color 		=	oBit(4),
-	vector 		=	oBit(5),
-	table		=	oBit(6),
-	func		=	oBit(7),
-	entity		=	oBit(8)
+	string    = oBit(1),
+	number    = oBit(2),
+	bool      = oBit(3),
+	color     = oBit(4),
+	vector    = oBit(5),
+	table     = oBit(6),
+	func      = oBit(7),
+	entity    = oBit(8)
 }
 
 -- Returns the engine type of value v
@@ -604,7 +609,7 @@ GetType = utils.GetType
 -- -------------------------------------------------------------------------- --
 
 function utils.MousePos()
-	local x,y = love.mouse.getPosition()
+	local x, y = love.mouse.getPosition()
 	return {
 		["x"] = x,
 		["y"] = y,
@@ -613,10 +618,9 @@ function utils.MousePos()
 	}
 end
 
-
-function utils.CamToWorld(x,y)
-	local rx, ry = engine.rendering.camera:worldCoords(x,y)
-	return{
+function utils.CamToWorld(x, y)
+	local rx, ry = engine.rendering.camera:worldCoords(x, y)
+	return {
 		[1] = rx,
 		[2] = ry,
 		["x"] = rx,
@@ -639,14 +643,14 @@ MouseX = utils.MouseX
 MouseY = utils.MouseY
 CamToWorld = utils.CamToWorld
 
-function utils.Distance (x1,y1, x2,y2)
+function utils.Distance(x1, y1, x2, y2)
 	local dx = x1 - x2
 	local dy = y1 - y2
 	return math.sqrt(dx * dx + dy * dy)
 end
 
-function utils.Vector(x,y)
-	return {[1] = x,[2] = y, ["x"]=x, ["y"]=y}
+function utils.Vector(x, y)
+	return { [1] = x, [2] = y, ["x"] = x, ["y"] = y }
 end
 
 Vector = utils.Vector
