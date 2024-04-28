@@ -42,6 +42,9 @@ function love.load()
 	require("Engine/interface")
 	engine.Log("[Core] Loaded interface module.")
 
+	require("Engine/misc")
+	engine.Log("[Core] Loaded misc engine features.")
+
 	if (intro) then
 		require("Engine/Intro/intro")
 		engine.Log("[Core] Loaded intro module.")
@@ -54,13 +57,10 @@ function love.load()
 	
 ---@diagnostic disable-next-line: param-type-mismatch
 	engine.Log("[Core] Applied seed to random generator: " .. os.time(os.date("!*t")))
+
 	-- ---------------------------------- Setup --------------------------------- --
-	engine.Log("[Core] Setting up CVars...")
+	engine.Log("[Core] Setting up any additional console variables...")
 	hooks.Fire("OnSetupCVars")
-
-	-- Engine CVars.
-	engine.AddCVar("debug_engine", false, "Enable misc. debug information regarding the engine, that wouldn't fit anywhere else.", "f5")
-
 	hooks.Fire("PostSetupCVars")
 
 	-- ------------------------------ Game Loading ------------------------------ --

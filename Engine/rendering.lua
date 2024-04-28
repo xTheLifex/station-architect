@@ -52,10 +52,6 @@ function engine.rendering.GetTexture(index)
 	return engine.assets.graphics[index] or engine.rendering.GetMissingTexture()
 end
 
-hooks.Add("OnSetupCVars", function()
-    engine.AddCVar("debug_rendering", false, "Enable/Disable debugging information about Rendering.", "f4")
-end)
-
 hooks.Add("OnCameraAttach", function()
 	engine.rendering.camera:attach()
 end)

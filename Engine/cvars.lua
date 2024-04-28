@@ -150,12 +150,6 @@ hooks.Add("OnEngineShutdown", function()
     engine.SaveCVars()
 end)
 
-hooks.Add("OnSetupCVars", function ()
-    engine.AddCVar("debug_cvars", false, "Enable/Disable debugging information about CVars.", "f1")
-    engine.AddCVar("screen_x", 1280, "Screen Width")
-    engine.AddCVar("screen_y", 720, "Screen Height")
-end)
-
 hooks.Add("PostSetupCVars", function() 
     engine.Log("[CVARS] " .. "Restoring CVars from save file...")
     engine.RestoreCVars()
@@ -192,3 +186,17 @@ hooks.Add("OnKeyPressed", function (key, scancode, isrepeat)
         end
     end
 end)
+
+-- -------------------------------------------------------------------------- --
+--                                Adding cvars.                               --
+-- -------------------------------------------------------------------------- --
+
+engine.AddCVar("showfps", true, "Draws FPS on the screen.")
+engine.AddCVar("debug_cvars", false, "Enable/Disable debugging information about CVars.", "f1")
+engine.AddCVar("debug_entities", false, "Enable the debugging of entity information", "f2")
+engine.AddCVar("debug_hooks" , false, "Enable/Disable debugging information about Hooks.", "f3")
+engine.AddCVar("debug_rendering", false, "Enable/Disable debugging information about Rendering.", "f4")
+engine.AddCVar("debug_physics", false, "Enables the display of debug physical information", "f5")
+engine.AddCVar("debug_engine", false, "Enable misc. debug information regarding the engine, that wouldn't fit anywhere else.", "f6")
+engine.AddCVar("screen_x", 1280, "Screen Width")
+engine.AddCVar("screen_y", 720, "Screen Height")

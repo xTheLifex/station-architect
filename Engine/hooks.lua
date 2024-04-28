@@ -168,12 +168,6 @@ end
 --                                    Debug                                   --
 -- -------------------------------------------------------------------------- --
 
-local CVAR_DEBUG = "debug_hooks"
-
-hooks.Add("OnSetupCVars" , function ()
-	engine.AddCVar(CVAR_DEBUG , false, "Enable/Disable debugging information about Hooks.", "f3")
-end)
-
 do
 	local function r(i)
 		return {i,0,0}

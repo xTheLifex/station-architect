@@ -5,10 +5,6 @@ engine.refresh.trackedFiles = engine.refresh.trackedFiles or {}
 engine.lua = engine.lua or {}
 engine.lua.require = engine.lua.require or require
 
-hooks.Add("OnSetupCVars", function()
-    engine.AddCVar("lua_tick", 0.5, "The amount of time between checks for refreshing lua files.")
-end)
-
 function engine.refresh.AddFile(path)
     local ref = engine.refresh.trackedFiles[path]
     if (not ref) then

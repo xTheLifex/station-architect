@@ -1,8 +1,8 @@
 engine = engine or {}
 engine.time = engine.time or {}
-engine.time.deltaTime = 0
 engine.time.startTime = os.time(os.date("!*t"))
 engine.time.currentTime = 0
+engine.time.deltaTime = 0
 
 function CurTime()
     return engine.time.currentTime
