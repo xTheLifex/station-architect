@@ -46,7 +46,7 @@ mv love/msvcp120.dll $destination/msvcp120.dll
 mv love/msvcr120.dll $destination/msvcr120.dll
 mv love/love.dll $destination/love.dll
 
-cp -ra redist/. $destination/
+cp -ra finalredist/. $destination/
 
 chmod +x $destination/StationArchitect.sh
 
