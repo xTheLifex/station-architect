@@ -66,6 +66,8 @@ jobs:
           mv love/msvcp120.dll MonthlyDev/msvcp120.dll
           mv love/msvcr120.dll MonthlyDev/msvcr120.dll
           mv love/love.dll MonthlyDev/love.dll
+          cp -ra redist/. $destination/
+          chmod +x $destination/StationArchitect.sh
           
 
       - name: Upload Artifacts
