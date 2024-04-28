@@ -193,7 +193,7 @@ do
 
 
 	hooks.Add("PostEngineDraw", function ()
-		if not (engine.GetCVar(CVAR_DEBUG, false)) then
+		if not (engine.GetCVar("debug_hooks", false)) then
 			return false
 		end
 		local h = hooks.GetHooks() or {}
