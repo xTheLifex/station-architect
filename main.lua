@@ -5,6 +5,7 @@ engine.quitReady = false
 engine.libs = engine.libs or {}
 love.filesystem.setIdentity("RexEngine")
 engine.loading = false -- If the engine is currently doing loading process.
+engine.version = 0
 
 local intro = false
 
@@ -60,6 +61,8 @@ function love.load()
 
 	-- ---------------------------------- Setup --------------------------------- --
 	engine.Log("[Core] Setting up any additional console variables...")
+	local version = love.filesystem.read("Engine/version.txt") or 0
+	engine.version = IsValid(version) and version or 0
 	hooks.Fire("OnSetupCVars")
 	hooks.Fire("PostSetupCVars")
 
@@ -155,6 +158,9 @@ function love.draw()
 	hooks.Fire("PostEngineDraw")
 	
 	hooks.Fire("PostDraw")
+
+	love.graphics.setColor(1,1,1)
+	love.graphics.print("Development Preview - Not final. Version: " .. engine.version .. " [dev]")
 end
 
 -- -------------------------------------------------------------------------- --
