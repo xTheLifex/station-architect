@@ -57,7 +57,7 @@ end
 --                                  Internal                                  --
 -- -------------------------------------------------------------------------- --
 
-engine.AddCVar("debug_physics", false, "Enables the display of debug physical information")
+engine.AddCVar("debug_physics", false, "Enables the display of debug physical information", "f4")
 
 engine.physics.CheckCollisions = function()
     local ents = engine.entities.GetAll()

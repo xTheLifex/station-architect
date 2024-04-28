@@ -44,16 +44,7 @@ end
 
 -- Returns a missing texture sprite object.
 function engine.rendering.GetMissingTexture()
-	return {
-		["dir"] = "internal",
-		["path"] = "internal",
-		["frames"] = {
-			[1] = engine.assets.DirTable(engine.rendering.missingtexture)
-		},
-		["index"] = "missingtexture",
-		["directionaltype"] =  engine.assets.SpriteDirectionType.FIXED,
-		["fps"] = 0
-	}
+	return engine.rendering.missingtexture
 end
 
 -- Returns a previously loaded texture object or a missing texture object.
@@ -61,42 +52,8 @@ function engine.rendering.GetTexture(index)
 	return engine.assets.graphics[index] or engine.rendering.GetMissingTexture()
 end
 
--- Draws a specified sprite based on its index name (not it's object)
-function engine.rendering.DrawSprite(index, frame, dir, x, y)
-	local dir = dir or 1
-	dir = utils.DirFormat(utils.DirInt(dir))
-	local frame = frame or 0
-	
-	if (engine.assets.graphics[index] == nil) then engine.rendering.DrawMissingTexture(x,y) return end
-	local data = engine.assets.graphics[index]
-
-	if not data then engine.rendering.DrawMissingTexture(x,y) return end
-
-	if (data["directionaltype"] == engine.assets.SpriteDirectionType.FIXED) then
-		dir = 1
-	end
-	-- TODO: Translate for simple direction sprites.
-
-	local frames = data["frames"]
-	if not frames then engine.rendering.DrawMissingTexture(x,y) return end
-	if not frames[frame] then engine.rendering.DrawMissingTexture(x,y) return end
-
-	
-	local img = frames[frame][dir] or false
-	if not img then 
-		local fail = false
-		dir = 0
-		repeat
-			dir = dir + 1
-			if (dir > 8) then fail = true end
-		until ((frames[frame][dir] ~= nil) or (fail == true))	
-	return end
-
-	love.graphics.draw(img, x,y)
-end
-
 hooks.Add("OnSetupCVars", function()
-    engine.AddCVar("debug_rendering", false, "Enable/Disable debugging information about Rendering.")
+    engine.AddCVar("debug_rendering", false, "Enable/Disable debugging information about Rendering.", "f4")
 end)
 
 hooks.Add("OnCameraAttach", function()
@@ -156,7 +113,10 @@ hooks.Add("OnGameDraw", function ()
 		for y=gmin.y+1, gmax.y do
 			local tile = engine.world.tiles[x] and engine.world.tiles[x][y] or nil
 			if (IsValid(tile)) then
-				engine.rendering.DrawSprite(tile, 1, 1,x * engine.world.grid.tilesize,y * engine.world.grid.tilesize)
+				local tileSize = engine.world.grid.tilesize
+				love.graphics.setColor(0.2, 0.2, 0.2)
+				love.graphics.rectangle("line", x * tileSize,y * tileSize, tileSize, tileSize)
+				love.graphics.setColor(1,1,1,1)
 			end
 		end
 	end
@@ -169,12 +129,15 @@ hooks.Add("OnGameDraw", function ()
 			local layer = ent.layer or 1
 			if (ent.x > min.x and ent.x < max.x and ent.y > min.y and ent.y < max.y) then
 				if (ent.OnDraw ~= nil and isfunction(ent.OnDraw) and layer == i) then
+					love.graphics.setColor(1,1,1,1)
 					ent:OnDraw()
-					love.graphics.setColor(1,1,1) -- Clear render color if changed.
+					love.graphics.setColor(1,1,1,1)
 				end
 			end
 		end
 	end
+
+	hooks.Fire("PostDrawEntities")
 end)
 
 

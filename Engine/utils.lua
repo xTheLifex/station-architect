@@ -5,48 +5,6 @@ utils = utils or {}
 -- -------------------------------------------------------------------------- --
 --                                    Misc                                    --
 -- -------------------------------------------------------------------------- --
-function table.pasteOver(into, from)
-	local into = into
-	for k,v in pairs(from) do
-		into[k] = v
-	end
-	return into
-end
-
-function table.deepcopy(orig)
-    local orig_type = type(orig)
-    local copy
-    if orig_type == 'table' then
-        copy = {}
-        for orig_key, orig_value in next, orig, nil do
-            copy[table.deepcopy(orig_key)] = table.deepcopy(orig_value)
-        end
-        setmetatable(copy, table.deepcopy(getmetatable(orig)))
-    else -- number, string, boolean, etc
-        copy = orig
-    end
-    return copy
-end
-
-function table.shallowcopy(orig)
-    local orig_type = type(orig)
-    local copy
-    if orig_type == 'table' then
-        copy = {}
-        for orig_key, orig_value in pairs(orig) do
-            copy[orig_key] = orig_value
-        end
-    else -- number, string, boolean, etc
-        copy = orig
-    end
-    return copy
-end
-
-table.copy = table.deepcopy
-
-function table.clone(org)
-  return {table.unpack(org)}
-end
 
 function utils.ScreenX()
 	return love.graphics.getWidth()
@@ -58,65 +16,6 @@ end
 
 ScreenX = utils.ScreenX
 ScreenY = utils.ScreenY
-
-
-function string.split(inputstr, sep)
-	if sep == nil then
-		sep = "%s"
-	end
-	local t={}
-	for str in string.gmatch(inputstr, "([^"..sep.."]+)") do
-		table.insert(t, str)
-	end
-	return t
-end
-
-function string.replace(str, find, replace)
-	return string.gsub(str, "%" .. find, replace)
-end
-
-function string.startsWith(str, start)
-	return str:sub(1, #start) == start
-end
-
-function string.endsWith(str, ending)
-	return ending == "" or str:sub(-#ending) == ending
-end
-
-function table.indexOf(array, value)
-    for i, v in ipairs(array) do
-        if v == value then
-            return i
-        end
-    end
-    return nil
-end
-
-function table.Contains(table, value)
-	for k, v in pairs(table) do
-		if v == value then
-			return true
-		end
-	end
-
-	return false
-end
-table.contains = table.Contains
-
-
-function table.ContainsKey(table, key)
-	return table[key] ~= nil
-end
-table.containskey = table.ContainsKey
-
-function table.AllEqual(table, value)
-	for k,v in pairs(table) do
-		if (v ~= value) then
-			return false
-		end
-	end
-	return true
-end
 
 function engine.LogDebug(text, cvar)
 	if (not engine.cvars) then
@@ -209,9 +108,27 @@ end
 utils.clamp = utils.Clamp
 math.clamp = utils.clamp
 
+-- Linearly interpolates from a to b by t.
+function utils.lerp(a,b,t) return a * (1-t) + b * t end
+math.lerp = utils.lerp
+
+-- Finds the percentage that x represents between a and b.
+function utils.midpercent(x,a,b)
+	if (a>b) then return utils.midpercent(x,b,a) end
+	return math.clamp((x-a)/(b-a), 0,1)
+end
+math.midpercent = utils.midpercent
+
 function utils.RemoveExtension(str)
 	if (type(str) ~= "string") then return "" end
 	return string.match(str, "(.+)%..+$") or str
+end
+
+function utils.GetFileExtension(str)
+    if type(str) ~= "string" then
+        return ""
+    end
+    return string.match(str, "%.([^%.]+)$") or ""
 end
 
 function utils.GetDirectoryContents(dir)
@@ -295,6 +212,249 @@ DirFormat = utils.DirFormat
 DirectionFormat = utils.DirFormat
 DirInt = utils.DirInt
 DirectionInt = utils.DirInt
+
+-- -------------------------------------------------------------------------- --
+--                                   String                                   --
+-- -------------------------------------------------------------------------- --
+
+function string.split(inputstr, sep)
+	if sep == nil then
+		sep = "%s"
+	end
+	local t={}
+	for str in string.gmatch(inputstr, "([^"..sep.."]+)") do
+		table.insert(t, str)
+	end
+	return t
+end
+
+string.Split = string.split
+
+function string.remove(inputString, toRemove)
+    if type(inputString) ~= "string" or type(toRemove) ~= "string" then
+        return inputString
+    end
+
+    local startPos, endPos = string.find(inputString, toRemove)
+
+    if startPos and endPos then
+        return string.sub(inputString, 1, startPos - 1) .. string.sub(inputString, endPos + 1)
+    else
+        return inputString
+    end
+end
+
+string.Remove = string.remove
+
+function string.replace(str, find, replace)
+	return string.gsub(str, "%" .. find, replace)
+end
+
+string.Replace = string.replace
+
+function string.startsWith(str, start)
+	return str:sub(1, #start) == start
+end
+
+string.StartsWith = string.startsWith
+
+function string.endsWith(str, ending)
+	return ending == "" or str:sub(-#ending) == ending
+end
+
+string.EndsWith = string.endsWith
+
+-- Trims down a string by the max amount of characters, additionally, can split into several lines.
+function string.trim(str, max, breakLines, maxLines)
+	if not max or max <= 0 then return str end
+	local maxLines = maxLines or 3
+	local breakLines = breakLines and true or false
+	
+	if (breakLines == false) then
+        local trim = string.sub(str, 1, max-3)
+        
+        if trim == str then return str end
+	    return trim .. "..."
+	end
+	
+	local count = 0
+	local result = ""
+	local lines = 1
+    for c in str:gmatch"." do
+        count = count + 1
+        
+        if (count >= max-3 and lines >= maxLines) then
+                 result = result .. "..."
+                 return result
+        end
+        
+        if (count > max) then
+            count = 0
+            
+            if (lines >= maxLines) then
+                 result = result .. "..."
+                 return result
+            end
+            
+            result = result .. "\n"
+            lines = lines + 1
+        end
+        result = result .. c
+    end
+    
+    return result
+end
+
+string.Trim = string.trim
+
+function string.wtrim(str, maxChars, maxLines)
+	if not maxChars or maxChars <= 0 then return str end
+	local maxLines = maxLines or 1
+	if not maxLines or maxLines <= 0 then maxLines = 1 end
+	local charCount = 0
+	local lineCount = 1
+	local result = ""
+
+	for _,word in ipairs(string.split(str," ")) do
+		if (charCount + #word + 3 > maxChars) then
+		    if (lineCount >= maxLines) then
+		        result = result .. "..."
+		        return result
+		    end
+        
+			result = result .. "\n"
+			lineCount = lineCount + 1
+			charCount = 0
+		end
+		result = result .. word .. " "
+		charCount = charCount + #word + 1
+	end
+
+    return result
+end
+
+string.wordTrim = string.wtrim
+
+
+function string.unify(...)
+	local str = ""
+	for k,v in pairs({...}) do
+		if (type(v) == "string") then str = str .. v end
+		if (type(v) == "table") then
+			 for _,s in pairs(v) do
+				 if (type(s) == "string") then str = str .. s end
+			 end
+		end
+	end
+	
+	return str
+ end
+
+string.Unify = string.unify
+
+
+-- -------------------------------------------------------------------------- --
+--                                    Table                                   --
+-- -------------------------------------------------------------------------- --
+
+function table.clone(org)
+  return {table.unpack(org)}
+end
+
+function table.pasteOver(into, from)
+	local into = into
+	for k,v in pairs(from) do
+		into[k] = v
+	end
+	return into
+end
+
+function table.deepcopy(orig)
+    local orig_type = type(orig)
+    local copy
+    if orig_type == 'table' then
+        copy = {}
+        for orig_key, orig_value in next, orig, nil do
+            copy[table.deepcopy(orig_key)] = table.deepcopy(orig_value)
+        end
+        setmetatable(copy, table.deepcopy(getmetatable(orig)))
+    else -- number, string, boolean, etc
+        copy = orig
+    end
+    return copy
+end
+
+function table.shallowcopy(orig)
+    local orig_type = type(orig)
+    local copy
+    if orig_type == 'table' then
+        copy = {}
+        for orig_key, orig_value in pairs(orig) do
+            copy[orig_key] = orig_value
+        end
+    else -- number, string, boolean, etc
+        copy = orig
+    end
+    return copy
+end
+
+table.pasteover = table.pasteOver
+table.deepCopy = table.deepcopy
+table.ShallowCopy = table.shallowcopy
+table.copy = table.deepcopy
+
+function table.length(t)
+	assert(istable(t), "Argument variable to measure for table's length is not a table")
+	local count = 0
+	for _, __ in pairs(t) do
+		count = count + 1
+	end
+	return count
+end
+
+function table.ilength(t) return #t end
+
+table.len = table.length
+table.ilen = table.ilength
+
+
+function table.indexOf(array, value)
+    for i, v in ipairs(array) do
+        if v == value then
+            return i
+        end
+    end
+    return nil
+end
+
+table.IndexOf = table.indexOf
+
+function table.Contains(table, value)
+	for k, v in pairs(table) do
+		if v == value then
+			return true
+		end
+	end
+
+	return false
+end
+table.contains = table.Contains
+
+
+function table.ContainsKey(table, key)
+	return table[key] ~= nil
+end
+table.containskey = table.ContainsKey
+
+function table.AllEqual(table, value)
+	for k,v in pairs(table) do
+		if (v ~= value) then
+			return false
+		end
+	end
+	return true
+end
+
 -- -------------------------------------------------------------------------- --
 --                                    Types                                   --
 -- -------------------------------------------------------------------------- --

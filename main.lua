@@ -4,6 +4,7 @@ serialize = serialize or require("Engine.Libs.ser")
 engine.quitReady = false
 engine.libs = engine.libs or {}
 love.filesystem.setIdentity("RexEngine")
+engine.loading = false -- If the engine is currently doing loading process.
 
 local intro = false
 
@@ -40,8 +41,8 @@ function love.load()
 	engine.Log("[Core] " .. "Loaded world module.")
 	require("Engine/rendering")
 	engine.Log("[Core] " .. "Loaded rendering module.")
-	require("Engine/physics")
-	engine.Log("[Core] " .. "Loaded physics module.")
+	--require("Engine/physics")
+	--engine.Log("[Core] " .. "Loaded physics module.")
 	
 	require("Engine/interface")
 	engine.Log("[Core] " .. "Loaded interface module.")
@@ -65,9 +66,13 @@ function love.load()
 	-- ---------------------------------- Setup --------------------------------- --
 	engine.Log("[Core] " .. "Setting up CVars...")
 	hooks.Fire("OnSetupCVars")
+
+	-- Engine CVars.
+	engine.AddCVar("debug_engine", false, "Enable misc. debug information regarding the engine, that wouldn't fit anywhere else.", "f5")
+
 	hooks.Fire("PostSetupCVars")
 
-	-- ----------------------------- Engine Loading ----------------------------- --
+	-- ------------------------------ Game Loading ------------------------------ --
 	-- This was made async for loading screens.
 	engine.loading = true
 	engine.routines.New("EngineLoad", function ()
@@ -93,32 +98,6 @@ function love.load()
 end
 
 function love.keypressed(key, scancode, isrepeat)
-
-	if (scancode == "f12" and not isrepeat) then
-		local v = engine.GetCVar("debug_hooks", false)
-		engine.SetCVar("debug_hooks", not v)
-		engine.SetCVar("debug_cvars", not v)
-		return
-	end
-
-	if (scancode == "f6" and not isrepeat) then
-		local v = engine.GetCVar("debug_rendering", false)
-		engine.SetCVar("debug_rendering", not v)
-		return
-	end
-
-	if (scancode == "f3" and not isrepeat) then
-		local v = engine.GetCVar("debug_entities", false)
-		engine.SetCVar("debug_entities", not v)
-		return
-	end
-
-	if (scancode == "f2" and not isrepeat) then
-		local v = engine.GetCVar("debug_physics", false)
-		engine.SetCVar("debug_physics", not v)
-		return
-	end
-
 	hooks.Fire("OnKeyPressed", key, scancode, isrepeat)
 end
 

@@ -19,6 +19,29 @@ function engine.routines.GetStatus(name)
     return coroutine.status(co)
 end
 
+engine.routines.cyclebar = 1
+engine.routines.nextcyclebar = 0
+function engine.routines.GetLoadingCyclebar(interval)
+    -- local bar = {
+    --     "[@   ]",
+    --     "[ @  ]",
+    --     "[  @ ]",
+    --     "[   @]",
+    --     "[  @ ]",
+    --     "[ @  ]",
+    -- }
+
+    local bar = {"/", "-", "\\", "|"}
+
+    if (CurTime() > engine.routines.nextcyclebar) then
+        engine.routines.cyclebar = engine.routines.cyclebar + 1
+        if (engine.routines.cyclebar > #bar) then engine.routines.cyclebar = 1 end
+        engine.routines.nextcyclebar = CurTime() + (interval or 0.25)
+    end
+
+    return bar[engine.routines.cyclebar] or bar[1] or ""
+end
+
 function engine.routines.End(name)
     local co = engine.routines.list[name]
     if (not co) then return end

@@ -4,7 +4,7 @@ engine.world.entities = engine.world.entities or {}
 engine.world.tiles = {}
 engine.world.grid = {}
 engine.world.grid.tilesize = 32
-engine.world.size = {128, 128}
+engine.world.size = Vector(128, 128)
 
 engine.world.colmap = {}
 engine.world.vismap = {}
@@ -76,6 +76,5 @@ hooks.Add("PostGameDraw", function()
 	if (not engine.world.IsWithinBoundaries(gridpos.x,gridpos.y)) then return end
 	love.graphics.rectangle("line", gridworldpos.x, gridworldpos.y, engine.world.grid.tilesize, engine.world.grid.tilesize)
 	love.graphics.print("X: " .. gridworldpos.x .. " Y: " .. gridworldpos.y, gridworldpos.x + 24, gridworldpos.y + 24)
-
 	love.graphics.print("X: " .. gridpos.x .. " Y: " .. gridpos.y, gridworldpos.x + 24, gridworldpos.y + 4)
 end)

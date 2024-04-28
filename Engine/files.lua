@@ -152,6 +152,10 @@ function engine.SaveINI(path, data)
     end
 end
 
+function file.GetNameFromPath(fileDir)
+    return string.gmatch(fileDir, ".+/([^/]+)$")
+end
+
 hooks.Add("OnEngineDraw", function ()
     if (IsValid(file.current)) then
         local t = {}
