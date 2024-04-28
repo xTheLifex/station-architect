@@ -8,6 +8,10 @@ engine.loading = false -- If the engine is currently doing loading process.
 
 local intro = false
 
+-- -------------------------------------------------------------------------- --
+--                                   Loading                                  --
+-- -------------------------------------------------------------------------- --
+
 function love.load()
 	-- ---------------------------------- Utils --------------------------------- --
 	require("Engine/utils")
@@ -16,55 +20,42 @@ function love.load()
 	require("Engine/logging")
 	engine.Log("[Core] " .. os.date("Logging started for: %d/%m/%y"))
 	require("Engine/hooks")
-	engine.Log("[Core] " .. "Loaded hook module.")
+	engine.Log("[Core] Loaded hook module.")
 	require("Engine/cvars")
-	engine.Log("[Core] " .. "Loaded cvar module.")
+	engine.Log("[Core] Loaded cvar module.")
 	require("Engine/time")
-	engine.Log("[Core] " .. "Loaded time module.")
+	engine.Log("[Core] Loaded time module.")
 	require("Engine/files")
-	engine.Log("[Core] " .. "Loaded file module.")
+	engine.Log("[Core] Loaded file module.")
 	require("Engine/routines")
-	engine.Log("[Core] " .. "Loaded routines module.")
-
-	-- ! DISABLED ! --
-	-- The live-updating is cool, but it isn't perfect, and it might create a multitude of issues
-	-- that i'm not willing to fix, or maintain.
-	-- It will be disabled until further notice.
-	--require("Engine/refresh")
-	--engine.Log("[Core] " .. "Loaded lua dynamic refresh module.")
-
+	engine.Log("[Core] Loaded routines module.")
 	require("Engine/assets")
-	engine.Log("[Core] " .. "Loaded assets module.")
+	engine.Log("[Core] Loaded assets module.")
 	require("Engine/entities")
-	engine.Log("[Core] " .. "Loaded entities module.")
+	engine.Log("[Core] Loaded entities module.")
 	require("Engine/world")
-	engine.Log("[Core] " .. "Loaded world module.")
+	engine.Log("[Core] Loaded world module.")
 	require("Engine/rendering")
-	engine.Log("[Core] " .. "Loaded rendering module.")
+	engine.Log("[Core] Loaded rendering module.")
 	--require("Engine/physics")
-	--engine.Log("[Core] " .. "Loaded physics module.")
-	
+	--engine.Log("[Core] Loaded physics module.")
 	require("Engine/interface")
-	engine.Log("[Core] " .. "Loaded interface module.")
+	engine.Log("[Core] Loaded interface module.")
 
 	if (intro) then
 		require("Engine/Intro/intro")
-		engine.Log("[Core] " .. "Loaded intro module.")
+		engine.Log("[Core] Loaded intro module.")
 	end
 
-	--engine.libs.loveframes = require("Engine.Libs.loveframes")
-	--loveframes = engine.libs.loveframes
-	--engine.Log("[Core] " .. "Loaded external libraries.")
-
-	engine.Log("[Core] " .. "Finished loading engine modules.")
+	engine.Log("[Core] Finished loading engine modules.")
 	
 	--love.math.setRandomSeed( CurTime() )
 	math.randomseed( CurTime() )
 	
 ---@diagnostic disable-next-line: param-type-mismatch
-	engine.Log("[Core] " .. "Applied seed to random generator: " .. os.time(os.date("!*t")))
+	engine.Log("[Core] Applied seed to random generator: " .. os.time(os.date("!*t")))
 	-- ---------------------------------- Setup --------------------------------- --
-	engine.Log("[Core] " .. "Setting up CVars...")
+	engine.Log("[Core] Setting up CVars...")
 	hooks.Fire("OnSetupCVars")
 
 	-- Engine CVars.
@@ -76,16 +67,12 @@ function love.load()
 	-- This was made async for loading screens.
 	engine.loading = true
 	engine.routines.New("EngineLoad", function ()
-		engine.Log("[Core] " .. "Engine loaded!")
+		engine.Log("[Core] Engine loaded!")
 		hooks.Fire("PostEngineLoad")
 		engine.quitReady = true
 	
-		if (engine.GetCVar("debug_cvars", false)) then
-			engine.PrintCVars()
-		end
-	
 		if (not intro) then
-			engine.Log("[Core] " .. "Loading game...")
+			engine.Log("[Core] Loading game...")
 			hooks.Fire("PreGameLoad")
 			require("Game/game")
 			hooks.Fire("OnGameLoad")
@@ -96,6 +83,10 @@ function love.load()
 	end)
 	-- -------------------------------------------------------------------------- --
 end
+
+-- -------------------------------------------------------------------------- --
+--                             Method Abstraction                             --
+-- -------------------------------------------------------------------------- --
 
 function love.keypressed(key, scancode, isrepeat)
 	hooks.Fire("OnKeyPressed", key, scancode, isrepeat)
@@ -140,6 +131,10 @@ function love.wheelmoved(x, y)
     end
 end
 
+-- -------------------------------------------------------------------------- --
+--                                   Drawing                                  --
+-- -------------------------------------------------------------------------- --
+
 function love.draw()
 	hooks.Fire("PreDraw")
 
@@ -162,14 +157,18 @@ function love.draw()
 	hooks.Fire("PostDraw")
 end
 
+-- -------------------------------------------------------------------------- --
+--                                  Quitting                                  --
+-- -------------------------------------------------------------------------- --
+
 function love.quit()
 	if (not engine.quitReady) then
-		engine.Log("[Core] " .. "An attempt was made to shutdown, but the engine isn't ready to shutdown yet. Ignoring...")
+		engine.Log("[Core] An attempt was made to shutdown, but the engine isn't ready to shutdown yet. Ignoring...")
 		return true
 	else
-		engine.Log("[Core] " .. "Preparing for shutdown...")
+		engine.Log("[Core] Preparing for shutdown...")
 		hooks.Fire("OnEngineShutdown")
-		engine.Log("[Core] " .. "Shutting down...")
+		engine.Log("[Core] Shutting down...")
 		return false
 	end
 end
