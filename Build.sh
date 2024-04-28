@@ -33,8 +33,8 @@ echo "3. Packaging..."
 echo " "
 
 mkdir builds
-mkdir builds/$new_version
-destination=builds/$new_version
+destination=builds/build-$new_version
+mkdir $destination
 
 cp -ra Game $destination/Game
 mv StationArchitect.exe $destination/StationArchitect.exe
@@ -49,6 +49,8 @@ mv love/love.dll $destination/love.dll
 cp -ra finalredist/. $destination/
 
 chmod +x $destination/StationArchitect.sh
+
+zip -r $destination.zip $destination
 
 echo "4. Cleaning up..."
 echo " "
