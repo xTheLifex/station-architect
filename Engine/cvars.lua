@@ -191,12 +191,11 @@ end)
 --                                Adding cvars.                               --
 -- -------------------------------------------------------------------------- --
 
-engine.AddCVar("showfps", true, "Draws FPS on the screen.")
+engine.AddCVar("showfps", true, "Draws FPS on the screen.", "f8")
 engine.AddCVar("debug_cvars", false, "Enable/Disable debugging information about CVars.", "f1")
 engine.AddCVar("debug_entities", false, "Enable the debugging of entity information", "f2")
 engine.AddCVar("debug_hooks" , false, "Enable/Disable debugging information about Hooks.", "f3")
 engine.AddCVar("debug_rendering", false, "Enable/Disable debugging information about Rendering.", "f4")
 engine.AddCVar("debug_physics", false, "Enables the display of debug physical information", "f5")
-engine.AddCVar("debug_engine", false, "Enable misc. debug information regarding the engine, that wouldn't fit anywhere else.", "f6")
 engine.AddCVar("screen_x", 1280, "Screen Width")
 engine.AddCVar("screen_y", 720, "Screen Height")
