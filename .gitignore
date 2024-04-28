@@ -1,4 +1,6 @@
-Game/Data/cvars.ini
-Engine/Logs/*
+[Gg]ame/[Dd]ata/cvars.ini
+[En]ngine/Logs/*
 .vscode/*
 .vscode/tasks.json
+[Ll]ove
+[Bb]uilds
