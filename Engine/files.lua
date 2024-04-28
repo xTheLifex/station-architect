@@ -161,6 +161,6 @@ hooks.Add("OnEngineDraw", function ()
         local t = {}
         table.insert(t, {1,0,0})
         table.insert(t, string.format("Current open file: [%s]", file.current))
-        love.graphics.print(t, 256, 0, 0, 1, 1)
+        love.graphics.print(t, 256, 0, ScreenY()-128, 1, 1)
     end
 end)
