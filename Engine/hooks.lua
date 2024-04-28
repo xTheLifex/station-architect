@@ -8,16 +8,46 @@ hooks.debug.clearTime = 1 -- Seconds before the colors are updated and history c
 hooks.debug.lastClean = 0 -- Time where the last cleaning took place.
 hooks.debug.uncalled = {}
 
+hooks.flags = {}
 hooks.list = {}
 hooks.blacklist = {"blacklist"}
 
+-- -------------------------------------------------------------------------- --
+--                                    Flags                                   --
+-- -------------------------------------------------------------------------- --
+
+function hooks.Flag(hook, flag, val)
+	hooks.flags[hook] = hooks.flags[hook] or {}
+	hooks.flags[hook][flag] = tobool(val)
+end
+
+function hooks.GetFlag(hook, flag)
+	hooks.flags[hook] = hooks.flags[hook] or {}
+	return hooks.flags[hook][flag] or false
+end
+
+local ignoreUnuse = {
+	"OnEngineShutdown", "EngineLoadingScreenDraw",
+	"OnMouseWheelUp", "OnMouseWheelDown",
+	"OnKeyPressed"
+}
+
+for _,h in ipairs(ignoreUnuse) do hooks.Flag(h, "ignoreUnused", true) end
+
+-- -------------------------------------------------------------------------- --
+--                                   Hooking                                  --
+-- -------------------------------------------------------------------------- --
+
 hooks.Add = function(hook, callback)
+	--local flags = flags or {}
 	for k,v in ipairs(hooks.blacklist) do
 		if (hook == v) then return end
 	end
 	
 	if (hooks.list[hook] == nil) then
 		hooks.list[hook] = {}
+		hooks.debug.uncalled[hook] = true
+		--for _,flag in ipairs(flags) do hooks.Flag(hook, flag, true) end
 	end
 
 	if (engine.cvars) then
@@ -27,8 +57,9 @@ hooks.Add = function(hook, callback)
 	end
 
 	table.insert(hooks.list[hook], callback)
-	hooks.debug.uncalled[hook] = true
 end
+
+
 
 -- Gets a list of registered hooks.
 hooks.GetHooks = function()
@@ -132,6 +163,10 @@ hooks.Remove = function(hook, callback)
 		end
 	end
 end
+
+-- -------------------------------------------------------------------------- --
+--                                    Debug                                   --
+-- -------------------------------------------------------------------------- --
 
 local CVAR_DEBUG = "debug_hooks"
 
@@ -249,10 +284,6 @@ hooks.Add("OnEngineUpdate", function (dt)
 	end
 end)
 
-hooks.Add("TestHook", function ()
-	
-end)
-
 hooks.Add("PostEngineLoad", function ()
 	engine.routines.New("AnnounceDeadHooks", function ()
 		while (CurTime() < 5) do
@@ -261,7 +292,7 @@ hooks.Add("PostEngineLoad", function ()
 
 		local hookList = hooks.GetHooks()
 		for _,h in ipairs(hookList) do
-			if (hooks.debug.uncalled[h] == true) then
+			if (hooks.debug.uncalled[h] == true and not hooks.GetFlag(h, "ignoreUnused")) then 
 				engine.Log(string.format("[HOOKS] WARNING: Hook [%s] has not yet been called in %s seconds. Consider removing it if it's unecessary.", h, tostring(math.floor(CurTime()))))
 				coroutine.yield()
 			end
