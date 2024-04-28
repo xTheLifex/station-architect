@@ -82,6 +82,7 @@ end
 
 -- Fires the hook and returns all of the results from all the callbacks.
 hooks.Fire = function(hook, ...)
+	if (hooks.list[hook] == nil) then hooks.list[hook] = {} end
 	hooks.debug.uncalled[hook] = false
 	for k,v in ipairs(hooks.blacklist) do
 		if (hook == v) then return end
@@ -102,6 +103,7 @@ hooks.Fire = function(hook, ...)
 end
 
 hooks.FireCheckReturn = function(hook, value, ...)
+	if (hooks.list[hook] == nil) then hooks.list[hook] = {} end
 	for k,v in ipairs(hooks.blacklist) do
 		if (hook == v) then return end
 	end
@@ -197,49 +199,105 @@ do
 			return false
 		end
 		local h = hooks.GetHooks() or {}
+		local function heatOrder(a,b)
+			local _a = hooks.debug.heat[a] and hooks.debug.heat[a][2] or 0
+			local _b = hooks.debug.heat[b] and hooks.debug.heat[b][2] or 0
+			return _a > _b
+		end
+
+		table.sort(h, heatOrder)
+
 		local t = {}
+		table.insert(t, w(1))
+		table.insert(t, string.format("### Hooks: [%i] ###\n",#h))
+		--table.insert(t, "[calls]:callbacks - hook\n")
+
+		local displayCount = 0
+		local LIMIT = 50
 
 		table.insert(t, w(1))
-		table.insert(t, string.format("Hooks: [%i]\n",#h))
+		table.insert(t, "* With callbacks:\n")
 
-		local count = 0
-		local LIMIT = 20
-
+		-- Draw the ones that have listed callbacks first.
 		for _, hook in ipairs(h) do
-			if (count >= LIMIT) then
-				table.insert(t, b(1))
-				table.insert(t, "(...)\n")
-				break
-			end
-
 			local color = hooks.debug.heat[hook] and hooks.debug.heat[hook][1] or {1,1,1}
-			local count = hooks.debug.heat[hook] and hooks.debug.heat[hook][2] or 0
-
-			if (count > 0) then
+			if (displayCount >= LIMIT) then
 				table.insert(t, color)
-				table.insert(t, string.format("[%s] %s\n", count, hook))
-				count = count+1
+				table.insert(t, "(...)\n")
+				break
+			end
+
+			local count = hooks.debug.heat[hook] and hooks.debug.heat[hook][2] or 0
+			local callbacks = #hooks.list[hook]
+
+			if (count > 0 and callbacks > 0) then
+				table.insert(t, color)
+				table.insert(t, string.format("[%s]:%s - %s\n", count, callbacks, hook))
+				displayCount = displayCount+1
 			end
 		end
-		
-		LIMIT = LIMIT-math.floor(count/2) -- Limit of INACTIVE hooks on screen
-		count = 0
-		
+		table.insert(t, w(1))
+		table.insert(t, "* Without callbacks:\n")
+
+		-- No callbacks registered, but still called alot.
 		for _, hook in ipairs(h) do
-			if (count >= LIMIT) then
+			local color = hooks.debug.heat[hook] and hooks.debug.heat[hook][1] or {1,1,1}
+			if (displayCount >= LIMIT) then
+				table.insert(t, color)
+				table.insert(t, "(...)\n")
+				break
+			end
+
+			local count = hooks.debug.heat[hook] and hooks.debug.heat[hook][2] or 0
+			local callbacks = #hooks.list[hook]
+
+			if (count > 0 and callbacks == 0) then
+				table.insert(t, color)
+				table.insert(t, string.format("[%s]:%s - %s\n", count, callbacks, hook))
+				displayCount = displayCount+1
+			end
+		end
+		table.insert(t, w(1))
+		table.insert(t, "* Not fired, has callbacks:\n")
+		
+		-- Not called, but has registered callbacks
+		for _, hook in ipairs(h) do
+			if (displayCount >= LIMIT) then
 				table.insert(t, w(1))
 				table.insert(t, "(...)\n")
 				break
 			end
 
 			local count = hooks.debug.heat[hook] and hooks.debug.heat[hook][2] or 0
+			local callbacks = #hooks.list[hook]
 
-			if (count <= 0) then
+			if (count <= 0 and callbacks > 0) then
 				table.insert(t, w(1))
-				table.insert(t, string.format("[%s] %s\n", count, hook))
-				count = count+1
+				table.insert(t, string.format("[%s]:%s - %s\n", count, callbacks, hook))
+				displayCount = displayCount+1
 			end
 		end
+		table.insert(t, w(1))
+		table.insert(t, "* Not fired, and has no callbacks:\n")
+
+		-- Not fired, and has no callbacks registered.
+		for _, hook in ipairs(h) do
+			if (displayCount >= LIMIT) then
+				table.insert(t, w(0.8))
+				table.insert(t, "(...)\n")
+				break
+			end
+
+			local count = hooks.debug.heat[hook] and hooks.debug.heat[hook][2] or 0
+			local callbacks = #hooks.list[hook]
+
+			if (count <= 0 and callbacks == 0) then
+				table.insert(t, w(0.8))
+				table.insert(t, string.format("[%s]:%s - %s\n", count, callbacks, hook))
+				displayCount = displayCount+1
+			end
+		end
+		table.insert(t, "\n")
 
 		love.graphics.print(t, 712, 32, 0, 1, 1)
 	end)
@@ -252,8 +310,8 @@ hooks.Add("OnEngineUpdate", function (dt)
 		for hook, count in pairs(hooks.debug.calls) do
 			
 			local white = 0
-			local yellow = 100
-			local red = 200
+			local yellow = 200
+			local red = 400
 
 			if (count <= white) then
 				-- White
@@ -265,7 +323,7 @@ hooks.Add("OnEngineUpdate", function (dt)
 			elseif(count <= red) then
 				-- Yellow to Red
 				local p = math.midpercent(count, yellow, red)
-				hook.debug.heat[hook] = {{1,1-p,0}, count}
+				hooks.debug.heat[hook] = {{1,1-p,0}, count}
 			else
 				-- Red
 				hooks.debug.heat[hook] = {{1,0,0}, count}
