@@ -150,7 +150,12 @@ hooks.Add("OnEngineShutdown", function()
     engine.SaveCVars()
 end)
 
-hooks.Add("PostSetupCVars", function() 
+hooks.Add("OnEngineSetup", function ()
+    engine.Log("[CVARS] Setting up any additional console variables...")
+	local version = love.filesystem.read("Engine/version.txt") or 0
+	engine.version = IsValid(version) and version or 0
+	hooks.Fire("OnSetupCVars")
+	hooks.Fire("PostSetupCVars")
     engine.Log("[CVARS] " .. "Restoring CVars from save file...")
     engine.RestoreCVars()
     engine.SaveCVars()
@@ -158,7 +163,6 @@ hooks.Add("PostSetupCVars", function()
     local x = engine.GetCVar("screen_x")
     local y = engine.GetCVar("screen_y")
     love.window.setMode(x, y)
-
 end)
 
 hooks.Add("PostEngineDraw", function ()

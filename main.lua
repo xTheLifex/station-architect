@@ -60,12 +60,8 @@ function love.load()
 	engine.Log("[Core] Applied seed to random generator: " .. os.time(os.date("!*t")))
 
 	-- ---------------------------------- Setup --------------------------------- --
-	engine.Log("[Core] Setting up any additional console variables...")
-	local version = love.filesystem.read("Engine/version.txt") or 0
-	engine.version = IsValid(version) and version or 0
-	hooks.Fire("OnSetupCVars")
-	hooks.Fire("PostSetupCVars")
-
+	engine.Log("[Core] Final engine setup...")
+	hooks.Fire("OnEngineSetup")
 	-- ------------------------------ Game Loading ------------------------------ --
 	-- This was made async for loading screens.
 	engine.loading = true
