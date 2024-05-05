@@ -1,14 +1,8 @@
 game = game or {}
-game.Log = function(text) 
-	engine.Log("[GAME] " .. text)
-end
 
 hooks.Add("OnGameLoad", function() 
 	game.Log("Game Loading!")
-	local sprites = {}
 
-	
-	game.asteroids = {}
 	local tilesize=32
 	for x=0,engine.world.size[1] do
 		for y=0,engine.world.size[2] do

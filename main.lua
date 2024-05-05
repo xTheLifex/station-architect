@@ -42,9 +42,11 @@ function love.load()
 	--engine.Log("[Core] Loaded physics module.")
 	require("Engine/interface")
 	engine.Log("[Core] Loaded interface module.")
-
 	require("Engine/misc")
 	engine.Log("[Core] Loaded misc engine features.")
+
+	require("Engine/api")
+	engine.Log("[Core] Loaded engine API.")
 
 	if (intro) then
 		require("Engine/Intro/intro")
@@ -73,7 +75,6 @@ function love.load()
 		if (not intro) then
 			engine.Log("[Core] Loading game...")
 			hooks.Fire("PreGameLoad")
-			require("Game/game")
 			hooks.Fire("OnGameLoad")
 			hooks.Fire("PostGameLoad")
 		end
