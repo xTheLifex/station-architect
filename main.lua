@@ -156,7 +156,7 @@ function love.draw()
 	hooks.Fire("PostDraw")
 
 	love.graphics.setColor(1,1,1)
-	love.graphics.print("Development Preview - Not final. Version: " .. engine.version .. " [dev]")
+	love.graphics.print("Development Preview - Not final. Version: " .. engine.version .. " [dev]", 0, ScreenY()-love.graphics.getFont():getHeight())
 end
 
 -- -------------------------------------------------------------------------- --
