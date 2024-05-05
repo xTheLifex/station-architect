@@ -15,11 +15,6 @@ function engine.AddCVar(key, default, description, toggleKey)
         ["toggle"] = toggleKey or nil
     }
 
-    if (engine.cvars[key].debug == true) then
-        engine.Log("[CVARS] Registered debug cvar: " .. key)
-    end
-
-    --engine.Log("[CVARS] " .. string.format("Registration of CVar \"%s\" - %s", tostring(key), tostring(default)))
     hooks.Fire("OnCVarAdded", key, default)
 end
 
