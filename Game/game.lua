@@ -1,8 +1,8 @@
 game = game or {}
 
 hooks.Add("OnGameLoad", function() 
-	game.Log("Game Loading!")
-
+	engine.Log("Game Loading!")
+	
 	local tilesize=32
 	for x=0,engine.world.size[1] do
 		for y=0,engine.world.size[2] do
@@ -10,6 +10,21 @@ hooks.Add("OnGameLoad", function()
 			--engine.entities.Create("tile", {x=ex, y=ey, sprite=sprite})
 			-- TODO: Tile system and not just images with no behaviour?
 			engine.world.SetTile(x,y, "asteroid")
+		end
+	end
+end)
+
+hooks.Add("OnGameUpdate", function ()
+	if (love.keyboard.isDown("q")) then
+		-- Spawn
+		local pos = engine.world.grid.ToWorldPos(math.random(1,5), math.random(1,5))
+		engine.entities.Create("mob", {x = pos.x, y = pos.y})
+	elseif(love.keyboard.isDown("e")) then
+		-- Delete
+		local mobs = engine.entities.GetByType("mob")
+		local mob = pick(mobs)
+		if (mob)  then
+			engine.entities.DeleteID(mob.id)
 		end
 	end
 end)
