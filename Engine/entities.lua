@@ -4,6 +4,10 @@ engine.entities.registry = {}
 engine.entities.lastID = 0
 engine.world = engine.world or {}
 engine.world.entities = engine.world.entities or {}
+engine.world.lastID = 0
+
+uuid = require('uuid') -- TODO: Replace with own library
+uuid.seed()
 
 engine.entities.base = {
 	name = "",
@@ -62,13 +66,17 @@ engine.entities.Create = function(name, data)
 	local tilex = tilepos.x
 	local tiley = tilepos.y
 	local targetname = data["targetname"] or data["name"] or "*"
-	local id = #engine.entities.registry + 1
 	local ent = deepCopyWithInheritance(template)
 	local collider = data["collider"] or {
 		type = "circle",
 		radius = 16
 	}
 	local dir = data["dir"] or Vector(0,0)
+	local id = uuid.new()
+	while (engine.world.entities[id] ~= nil) do
+		uuid.seed()
+		id = uuid.new()
+	end
 
 	for k,v in pairs(data) do
 		ent[k] = v
@@ -82,9 +90,9 @@ engine.entities.Create = function(name, data)
 	ent.targetname = targetname or "*"
 	ent.type = name
 	ent.collider = collider
-	ent.id = #engine.world.entities+1
-	engine.world.entities[#engine.world.entities+1] = ent
-	
+	ent.id = uuid.new()
+	table.insert(engine.world.entities, ent)
+
 	if (ent.OnCreate ~= nil and isfunction(ent.OnCreate)) then
 		ent:OnCreate()
 	end
@@ -261,7 +269,7 @@ engine.entities.DeleteID = function(id)
 		ent:OnDelete()
 	end
 
-	engine.Log(string.format("[Entities] deleted entity .. %x at [%x,%x]", id, ent.x, ent.y))
+	engine.Log(string.format("[Entities] deleted entity .. %s at [%x,%x]", id, ent.x, ent.y))
 	if (ent.OnDelete ~= nil and isfunction(ent.OnDelete)) then
 		ent:OnDelete()
 	end

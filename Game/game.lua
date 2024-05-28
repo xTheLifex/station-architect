@@ -14,12 +14,12 @@ hooks.Add("OnGameLoad", function()
 	end
 end)
 
-hooks.Add("OnGameUpdate", function ()
-	if (love.keyboard.isDown("q")) then
+hooks.Add("OnKeyPressed", function (key, scancode, isrepeat)
+	if (scancode == "q") then
 		-- Spawn
 		local pos = engine.world.grid.ToWorldPos(math.random(1,5), math.random(1,5))
 		engine.entities.Create("mob", {x = pos.x, y = pos.y})
-	elseif(love.keyboard.isDown("e")) then
+	elseif(scancode == "e") then
 		-- Delete
 		local mobs = engine.entities.GetByType("mob")
 		local mob = pick(mobs)
