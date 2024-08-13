@@ -40,6 +40,7 @@ hooks.Add("OnEngineSetup", function()
     engine.api.env.engine.world = engine.world
 
     engine.api.env.isfunc = isfunc
+    engine.api.env.isnumber = isnumber
     engine.api.env.isfunction = isfunction
     engine.api.env.ismethod = ismethod
     engine.api.env.isbool = isbool

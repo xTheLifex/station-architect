@@ -6,6 +6,7 @@ engine.libs = engine.libs or {}
 love.filesystem.setIdentity("RexEngine")
 engine.loading = false -- If the engine is currently doing loading process.
 engine.version = 0
+Class = require("Engine.Libs.class")
 
 local intro = false
 

@@ -11,7 +11,7 @@ uuid.seed()
 
 engine.entities.base = {
 	name = "",
-	id = 0,
+	id = "",
 	x = 0,
 	y = 0,
 	dir = Vector(0,0),
@@ -23,7 +23,7 @@ engine.entities.base = {
 --                          Entity Creation Function                          --
 -- -------------------------------------------------------------------------- --
 
-engine.entities.Create = function(name, data) 
+engine.entities.Create = function(name, data, forceID) 
 	if (not IsValid(name)) then
 		engine.Log("[Entities] tried to create empty entity. Rejecting.")
 		return
@@ -34,7 +34,6 @@ engine.entities.Create = function(name, data)
 		return
 	end
 
-	local superList = {}
 	local function deepCopyWithInheritance(template)
         local copy = {}
         local baseName = template.base
@@ -72,10 +71,12 @@ engine.entities.Create = function(name, data)
 		radius = 16
 	}
 	local dir = data["dir"] or Vector(0,0)
-	local id = uuid.new()
-	while (engine.world.entities[id] ~= nil) do
-		uuid.seed()
-		id = uuid.new()
+	local id = forceID or uuid.new()
+	if (forceID ~= nil) then
+		while (engine.world.entities[id] ~= nil) do
+			uuid.seed()
+			id = uuid.new()
+		end
 	end
 
 	for k,v in pairs(data) do
@@ -129,8 +130,6 @@ engine.entities.TileDistanceFromEntity = function(ent, other)
 
 	return utils.Distance(ent.tilex, ent.tiley, other.tilex, other.tiley)
 end
-
-
 
 engine.entities.DistanceFromPoint = function(ent, x, y)
 	if (x == nil or y == nil) then return nil end
@@ -324,8 +323,6 @@ engine.entities.Register = function(path, index)
 		}
 	end
 
-
-
 	if (ent.collider ~= nil) then
 		-- As of now, we are forcing all entities to use circle colliders.
 		ent.collider.type = "circle"
@@ -356,6 +353,13 @@ engine.entities.Register = function(path, index)
 	engine.Log("[Entities] Registering entity " .. index .. ".") 
 	engine.entities.registry[index] = ent
 end
+
+
+-- -------------------------------------------------------------------------- --
+--                                  Save/Load                                 --
+-- -------------------------------------------------------------------------- --
+
+
 
 -- -------------------------------------------------------------------------- --
 --                               Entity Updates                               --

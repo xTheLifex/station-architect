@@ -150,14 +150,10 @@ hooks.Add("OnEngineSetup", function ()
 	local version = love.filesystem.read("Engine/version.txt") or 0
 	engine.version = IsValid(version) and version or 0
 	hooks.Fire("OnSetupCVars")
-	hooks.Fire("PostSetupCVars")
     engine.Log("[CVARS] " .. "Restoring CVars from save file...")
     engine.RestoreCVars()
     engine.SaveCVars()
-
-    local x = engine.GetCVar("screen_x")
-    local y = engine.GetCVar("screen_y")
-    love.window.setMode(x, y)
+	hooks.Fire("PostSetupCVars")
 end)
 
 hooks.Add("PostEngineDraw", function ()
@@ -198,3 +194,5 @@ engine.AddCVar("debug_rendering", false, "Enable/Disable debugging information a
 engine.AddCVar("debug_physics", false, "Enables the display of debug physical information", "f5")
 engine.AddCVar("screen_x", 1280, "Screen Width")
 engine.AddCVar("screen_y", 720, "Screen Height")
+engine.AddCVar("screen_borderless", false, "Enable borderless fullscreen")
+engine.AddCVar("fullscreen", false, "Makes the game fullscreen.")

@@ -299,7 +299,7 @@ do
 		end
 		table.insert(t, "\n")
 
-		love.graphics.print(t, 712, 32, 0, 1, 1)
+		love.graphics.print(t, ScreenX() - 312, 32, 0, 1, 1)
 	end)
 end
 
