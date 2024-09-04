@@ -6,7 +6,7 @@ engine.world = engine.world or {}
 engine.world.entities = engine.world.entities or {}
 engine.world.lastID = 0
 
-uuid = require('uuid') -- TODO: Replace with own library
+uuid = require("Engine.Libs.uuid")
 uuid.seed()
 
 engine.entities.base = {
@@ -264,15 +264,12 @@ engine.entities.DeleteID = function(id)
 	local ent, index = engine.entities.GetByID(id)
 	if (ent == nil) then return false end -- Deleting nil?
 	
-	if (ent.OnDelete ~= nil and isfunction(ent.OnDelete)) then
-		ent:OnDelete()
-	end
-
 	engine.Log(string.format("[Entities] deleted entity .. %s at [%x,%x]", id, ent.x, ent.y))
 	if (ent.OnDelete ~= nil and isfunction(ent.OnDelete)) then
 		ent:OnDelete()
 	end
 	table.remove(engine.world.entities, index)
+	hooks.Fire("OnEntityDeleted", ent)
 	return true
 end
 
