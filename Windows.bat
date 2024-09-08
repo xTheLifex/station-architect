@@ -37,13 +37,13 @@ if exist "!loveExecutable!" (
         echo Love2D not found via Scoop. Installing Love2D...
         scoop install love
     ) else (
-        echo Love2D found via Scoop. Updating Love2D...
-        scoop update love
+        echo Love2D found via Scoop.
     )
 
     REM Run the game using Scoop-installed Love2D
     echo Running the game using Scoop Love2D...
-    start "" "love" "%cd%"
+    REM C:\Users\(USER)\scoop\apps\love\current 
+    call "%HOMEDRIVE%%HOMEPATH%\scoop\apps\love\current\love.exe" "%cd%"
 )
 
 endlocal
