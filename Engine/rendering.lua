@@ -31,8 +31,8 @@ end
 -- Returns the current camera speed.
 engine.rendering.GetCameraSpeed = function()
 	local zoom = engine.rendering.GetZoom()
-	local speed = BASE_SPEED / zoom
-	speed = utils.clamp(speed, 5, 20)
+	local speed = (BASE_SPEED / zoom) * DeltaTime()
+	speed = utils.clamp(speed, 3, 15)
 	return speed
 end
 
@@ -73,7 +73,6 @@ hooks.Add("OnMouseWheelDown", function(y)
 end)
 
 hooks.Add("OnGameUpdate", function(deltaTime) 
-
 	local zoom = engine.rendering.GetZoom()
 	local speed = engine.rendering.GetCameraSpeed()
 	speed = utils.clamp(speed, 5, 20)
